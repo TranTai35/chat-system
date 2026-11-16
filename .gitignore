@@ -1,0 +1,23 @@
+# Build
+target/
+out/
+bin/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+nbproject/
+nbactions.xml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cấu hình chứa mật khẩu CSDL trên máy từng người
+config.local.properties
