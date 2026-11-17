@@ -1,0 +1,105 @@
+erDiagram
+    users {
+        int id PK
+        varchar username UK
+        varchar password_hash
+        varchar full_name
+        varchar address
+        date dob
+        enum gender "MALE | FEMALE | OTHER"
+        varchar email UK
+        enum role "USER | ADMIN"
+        bool is_locked
+        bool is_online
+        text public_key "mã hoá nhóm"
+        datetime created_at "ngày đăng ký"
+    }
+    login_history {
+        bigint id PK
+        int user_id FK
+        datetime login_at
+        varchar ip_address
+    }
+    app_sessions {
+        bigint id PK
+        int user_id FK
+        datetime opened_at
+        datetime closed_at
+    }
+    friendships {
+        int user_id PK, FK
+        int friend_id PK, FK
+        datetime created_at
+    }
+    friend_requests {
+        int sender_id PK, FK
+        int receiver_id PK, FK
+        datetime created_at
+    }
+    blocks {
+        int blocker_id PK, FK
+        int blocked_id PK, FK
+        datetime created_at
+    }
+    conversations {
+        int id PK
+        enum type "PRIVATE | GROUP"
+        varchar name "chỉ nhóm có"
+        bool is_encrypted
+        int key_version
+        int created_by FK
+        datetime created_at
+    }
+    conversation_members {
+        int conversation_id PK, FK
+        int user_id PK, FK
+        enum role "ADMIN | MEMBER"
+        datetime joined_at
+        datetime cleared_at "xoá lịch sử phía mình"
+    }
+    messages {
+        bigint id PK
+        int conversation_id FK
+        int sender_id FK
+        text content
+        varchar iv
+        int key_version
+        datetime sent_at
+    }
+    message_hidden {
+        int user_id PK, FK
+        bigint message_id PK, FK
+        datetime hidden_at
+    }
+    spam_reports {
+        int id PK
+        int reporter_id FK
+        int reported_id FK
+        int conversation_id FK
+        varchar reason
+        enum status "PENDING | RESOLVED"
+        datetime created_at
+    }
+    group_keys {
+        int conversation_id PK, FK
+        int user_id PK, FK
+        int key_version PK
+        text encrypted_key
+        datetime created_at
+    }
+
+    users ||--o{ login_history : "đăng nhập"
+    users ||--o{ app_sessions : "mở ứng dụng"
+    users ||--o{ friendships : "có bạn"
+    users ||--o{ friend_requests : "gửi / nhận lời mời"
+    users ||--o{ blocks : "chặn"
+    users ||--o{ conversation_members : "tham gia"
+    conversations ||--|{ conversation_members : "gồm"
+    users |o--o{ conversations : "tạo"
+    conversations ||--o{ messages : "chứa"
+    users |o--o{ messages : "gửi"
+    users ||--o{ message_hidden : "ẩn tin"
+    messages ||--o{ message_hidden : "bị ẩn"
+    users ||--o{ spam_reports : "báo cáo / bị báo cáo"
+    conversations |o--o{ spam_reports : "nơi báo cáo"
+    conversation_members ||--o{ group_keys : "giữ khoá"
