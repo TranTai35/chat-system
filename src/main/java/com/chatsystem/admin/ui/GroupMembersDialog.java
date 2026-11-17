@@ -45,7 +45,7 @@ public class GroupMembersDialog extends BaseDialog {
     private void loadMockData(boolean adminsOnly) {
         Object[][] rows = {
                 {"taitp", "Trần Phước Tài", "Admin", "2026-11-16"},
-                {"khangndh", "Nguyễn Đặng Hoàng Khang", "Admin", "2026-11-16"},
+                {"khangndh", "Nguyễn Đặng Hoàng Khang", "Thành viên", "2026-11-16"},
                 {"nhanntt", "Nguyễn Trần Trung Nhân", "Thành viên", "2026-11-16"},
                 {"lanpt", "Phạm Thị Lan", "Thành viên", "2026-11-16"},
                 {"huongvt", "Võ Thu Hương", "Thành viên", "2026-11-16"},
