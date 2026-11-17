@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Wireframe Chat System</title>
+<!--
+  Wireframe thô (low-fi) cho 2 phân hệ. Mở file này bằng trình duyệt để xem.
+  Mỗi khung .wf được chụp thành 1 ảnh PNG trong docs/wireframe/user/ và docs/wireframe/admin/.
+  Bố cục bám docs/DESIGN.md mục 5. Chú thích màu cam = ghi chú cho người làm màn hình.
+-->
+<style>
+  body { font-family: "Segoe UI", system-ui, sans-serif; background:#eee; margin:0; padding:24px; color:#222; font-size:13px; }
+  h1 { font-size:20px; } h2 { font-size:16px; margin:32px 0 8px; }
+  .wf { background:#fff; border:2px solid #333; width:1000px; margin-bottom:24px; position:relative; }
+  .wf.small { width:520px; } .wf.auth { width:440px; }
+  .cap { background:#333; color:#fff; padding:6px 12px; font-weight:600; display:flex; justify-content:space-between; }
+  .cap span { font-weight:400; opacity:.8; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .sp { flex:1; }
+  .pad { padding:16px 20px; }
+  .ttl { font-size:18px; font-weight:700; }
+  .h { font-size:15px; font-weight:700; }
+  .mut { color:#777; font-size:12px; }
+  .btn { border:1.5px solid #333; border-radius:6px; padding:3px 10px; background:#fff; white-space:nowrap; }
+  .btn.pri { background:#555; color:#fff; } .btn.dan { border-style:dashed; border-color:#b00; color:#b00; font-weight:600; }
+  .in { border:1.5px solid #888; border-radius:6px; padding:3px 8px; color:#999; min-width:60px; background:#fff; }
+  .in.w { flex:1; } .sel::after { content:" ▾"; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { border:1px solid #999; padding:4px 8px; text-align:left; height:18px; }
+  th { background:#ddd; } td { color:#555; }
+  .side { width:180px; background:#444; color:#ddd; padding:12px; box-sizing:border-box; }
+  .side div { padding:5px 0; } .side .act { color:#fff; font-weight:700; } .side .sec { font-size:11px; opacity:.6; margin-top:8px; }
+  .frame { display:flex; min-height:460px; }
+  .note { position:absolute; background:#fff3cd; border:1.5px dashed #c77700; color:#7a4a00; padding:4px 8px; font-size:12px; max-width:240px; border-radius:4px; }
+  .notes { background:#fff3cd; border-top:1.5px dashed #c77700; color:#7a4a00; padding:8px 20px; font-size:12px; }
+  .notes li { margin:2px 0; }
+  .form { display:grid; grid-template-columns:130px 1fr; gap:8px 12px; align-items:center; }
+  .bubble { border:1.5px solid #555; border-radius:12px; padding:6px 12px; max-width:55%; margin:6px 0; }
+  .bubble.me { margin-left:auto; background:#555; color:#fff; }
+  .conv { padding:8px; border-bottom:1px solid #ccc; }
+  .chart { border:1.5px solid #888; height:300px; display:flex; align-items:flex-end; gap:14px; padding:12px 24px 24px; position:relative; }
+  .bar { flex:1; background:#888; position:relative; } .bar b { position:absolute; bottom:-20px; left:0; right:0; text-align:center; font-weight:400; font-size:11px; }
+  .dlg { border:2px solid #333; background:#fff; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; border:1.5px solid #333; }
+  .dot.on { background:#333; }
+</style>
+</head>
+<body>
+<h1>Wireframe – Chat System (Phiên bản 1)</h1>
+<p class="mut">Vẽ thô: chỉ khung, tên trường, vị trí nút. Màu/font thật lấy theo docs/DESIGN.md. Nút nền xám đậm = nút chính (PRIMARY), nút viền đỏ đứt = nút nguy hiểm (DANGER).</p>
+
+<!-- ===================================================== USER ===================================================== -->
+<h2>Phân hệ người dùng</h2>
+
+<div class="wf" id="user/01-chat">
+  <div class="cap">U – Cửa sổ chính + khung chat <span>UserMainFrame / ChatPanel – Nhân</span></div>
+  <div class="frame">
+    <div class="side"><div class="h" style="color:#fff">Chat System</div><div class="act">Tin nhắn</div><div>Bạn bè</div><div>Lời mời kết bạn</div><div>Bạn bè đang online</div><div>Tìm người</div><div>Tìm trong tin nhắn</div><div style="margin-top:120px">Tài khoản</div><div>Đổi mật khẩu</div><div>Đăng xuất</div></div>
+    <div style="width:240px;border-right:1.5px solid #333;display:flex;flex-direction:column">
+      <div class="pad" style="padding:8px"><div class="in">Tìm hội thoại</div></div>
+      <div class="conv"><b><span class="dot on"></span> Phạm Thị Lan</b> <span class="mut" style="float:right">10:21</span><div class="mut">Ok bạn, mai gửi nhé</div></div>
+      <div class="conv"><b><span class="dot"></span> Lê Quang Minh</b> <span class="mut" style="float:right">Hôm qua</span><div class="mut">Bạn: cảm ơn</div></div>
+      <div class="conv"><b>🔒 Nhóm đồ án Java</b> <span class="mut" style="float:right">09:02</span><div class="mut">Tài: đã push code</div></div>
+      <div class="conv"><b>👥 Lớp 24CTT3</b> <span class="mut" style="float:right">T2</span><div class="mut">Nhân: deadline thứ 7</div></div>
+      <div class="sp"></div>
+      <div style="padding:8px"><div class="btn" style="text-align:center">+ Tạo nhóm</div></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="row pad" style="padding:10px 16px;border-bottom:1.5px solid #333"><b>Nhóm đồ án Java</b><span>🔒 Đã mã hoá</span><span class="mut">3 thành viên</span><span class="sp"></span><span class="btn">🔍</span><span class="btn">⋮</span></div>
+      <div class="row" style="padding:6px 16px;border-bottom:1px solid #999;background:#f4f4f4"><div class="in w">Tìm trong cuộc chat</div><span class="mut">2/5</span><span class="btn">↑</span><span class="btn">↓</span><span class="btn">✕</span></div>
+      <div style="flex:1;padding:12px 16px">
+        <div class="mut">Tài</div><div class="bubble">Mọi người push code trước 22:00 nhé</div><div class="mut">20:58</div>
+        <div class="bubble me">Ok, mình xong màn danh sách rồi</div><div class="mut" style="text-align:right">21:01</div>
+        <div class="mut">Nhân</div><div class="bubble">ERD mình gửi lúc 18:00 rồi</div>
+      </div>
+      <div class="row" style="padding:10px 16px;border-top:1.5px solid #333"><span class="btn">✨ Gợi ý</span><div class="in w">Nhập tin nhắn...</div><span class="btn pri">Gửi</span></div>
+    </div>
+  </div>
+  <div class="note" style="right:20px;top:118px">Menu ⋮: Xoá toàn bộ lịch sử · Báo cáo spam · Chặn (chat riêng) / Quản lý nhóm (chat nhóm)</div>
+  <div class="note" style="right:330px;top:250px">Chuột phải 1 tin nhắn → "Xoá tin nhắn"</div>
+  <div class="note" style="left:440px;bottom:60px">✨ Gợi ý: LLM đề xuất câu trả lời, điền vào ô nhập</div>
+</div>
+
+<div class="wf small" id="user/02-create-group-dialog">
+  <div class="cap">U – Dialog tạo nhóm <span>CreateGroupDialog – Tài</span></div>
+  <div class="pad">
+    <div class="h">Tạo nhóm chat</div><div class="mut">Chọn tối thiểu 1 thành viên</div><br>
+    <div class="form"><span>Tên nhóm</span><div class="in">vd: Nhóm đồ án Java</div><span>Tìm bạn bè</span><div class="in">Tìm theo tên</div></div><br>
+    <table><tr><th style="width:30px"></th><th>Tên đăng nhập</th><th>Họ tên</th></tr>
+      <tr><td>☑</td><td>lanpt</td><td>Phạm Thị Lan</td></tr><tr><td>☑</td><td>nhanntt</td><td>Nguyễn Trần Trung Nhân</td></tr><tr><td>☐</td><td>minhlq</td><td>Lê Quang Minh</td></tr><tr><td>☐</td><td>huongvt</td><td>Võ Thu Hương</td></tr></table>
+    <div class="mut" style="margin-top:6px">Đã chọn 2 thành viên</div><br>
+    <div class="row"><span class="sp"></span><span class="btn">Huỷ</span><span class="btn pri">Tạo nhóm</span></div>
+  </div>
+</div>
+
+<div class="wf" id="user/03-manage-group-dialog" style="width:640px">
+  <div class="cap">U – Dialog quản lý nhóm <span>ManageGroupDialog – Tài</span></div>
+  <div class="pad">
+    <div class="h">Quản lý nhóm</div><div class="mut">Chỉ admin của nhóm được sửa</div><br>
+    <div class="form"><span>Tên nhóm</span><div class="row"><div class="in w">Nhóm đồ án Java</div><span class="btn">Đổi tên</span></div>
+      <span>Mã hoá</span><div class="row">☑ Bật mã hoá đầu cuối cho nhóm <span class="mut">(🔒 hiện ở danh sách hội thoại)</span></div></div><br>
+    <div class="row"><b>Thành viên (3)</b><span class="sp"></span><span class="btn">+ Thêm thành viên</span><span class="btn">Gán admin</span><span class="btn dan">Xoá khỏi nhóm</span></div><br>
+    <table><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th></tr>
+      <tr><td>taitp</td><td>Trần Phước Tài</td><td>Admin</td></tr><tr><td>khangndh</td><td>Nguyễn Đặng Hoàng Khang</td><td>Admin</td></tr><tr><td>nhanntt</td><td>Nguyễn Trần Trung Nhân</td><td>Thành viên</td></tr></table><br>
+    <div class="row"><span class="sp"></span><span class="btn">Huỷ</span><span class="btn pri">Lưu</span></div>
+  </div>
+</div>
+
+<div class="row" style="align-items:flex-start;gap:24px">
+<div class="wf auth" id="user/04-login">
+  <div class="cap">U – Đăng nhập <span>LoginFrame – Tài</span></div>
+  <div class="pad" style="padding:32px 40px;text-align:center">
+    <div class="ttl">Chat System</div><div class="mut">Đăng nhập để tiếp tục</div><br>
+    <div style="text-align:left">Tên đăng nhập<div class="in">Tên đăng nhập</div><br>Mật khẩu<div class="in">••••••</div>
+    <div style="text-align:right;margin:6px 0;text-decoration:underline">Quên mật khẩu?</div></div>
+    <div class="btn pri">Đăng nhập</div><br><div>Chưa có tài khoản? <u>Đăng ký</u></div>
+  </div>
+</div>
+<div class="wf auth" id="user/05-register">
+  <div class="cap">U – Đăng ký <span>RegisterFrame – Tài</span></div>
+  <div class="pad" style="padding:24px 40px;text-align:center">
+    <div class="ttl">Tạo tài khoản</div><div class="mut">Điền thông tin để đăng ký</div><br>
+    <div style="text-align:left">Tên đăng nhập<div class="in">vd: khangndh</div>Họ tên<div class="in">Nguyễn Văn A</div>Email<div class="in">ban@example.com</div>Mật khẩu<div class="in">••••••</div>Nhập lại mật khẩu<div class="in">••••••</div></div><br>
+    <div class="btn pri">Đăng ký</div><br><div>Đã có tài khoản? <u>Đăng nhập</u></div>
+  </div>
+</div>
+<div class="wf auth" id="user/06-forgot-password">
+  <div class="cap">U – Quên mật khẩu <span>ForgotPasswordFrame – Tài</span></div>
+  <div class="pad" style="padding:32px 40px;text-align:center">
+    <div class="ttl">Quên mật khẩu</div><div class="mut">Mật khẩu mới sẽ được gửi về email của bạn</div><br>
+    <div style="text-align:left">Tên đăng nhập hoặc email<div class="in">vd: khangndh</div></div><br>
+    <div class="btn pri">Gửi mật khẩu mới</div><br><div><u>← Quay lại đăng nhập</u></div>
+  </div>
+</div>
+</div>
+
+<div class="wf" id="user/07-profile">
+  <div class="cap">U – Thông tin tài khoản <span>ProfilePanel – Tài</span></div>
+  <div class="frame" style="min-height:360px"><div class="side"><div class="sec">… menu …</div><div class="act">Tài khoản</div><div>Đổi mật khẩu</div><div>Đăng xuất</div></div>
+  <div class="pad" style="flex:1"><div class="ttl">Thông tin tài khoản</div><br>
+    <div class="form" style="max-width:520px"><span>Tên đăng nhập</span><div class="in">khangndh (không sửa)</div><span>Họ tên</span><div class="in">Nguyễn Đặng Hoàng Khang</div><span>Địa chỉ</span><div class="in">12 Lê Lợi, Q1</div><span>Ngày sinh</span><div class="in">yyyy-MM-dd</div><span>Giới tính</span><div class="in sel">Nam</div><span>Email</span><div class="in">khang@example.com</div></div><br>
+    <div class="row" style="max-width:520px"><span class="sp"></span><span class="btn pri">Lưu</span></div></div></div>
+</div>
+
+<div class="wf small" id="user/08-change-password">
+  <div class="cap">U – Đổi mật khẩu <span>ChangePasswordPanel – Tài</span></div>
+  <div class="pad"><div class="ttl">Đổi mật khẩu</div><div class="mut">Mật khẩu mới tối thiểu 6 ký tự</div><br>
+    <div class="form"><span>Mật khẩu hiện tại</span><div class="in">••••••</div><span>Mật khẩu mới</span><div class="in">••••••</div><span>Nhập lại</span><div class="in">••••••</div></div><br>
+    <div class="row"><span class="sp"></span><span class="btn pri">Lưu</span></div></div>
+</div>
+
+<div class="wf" id="user/09-friends">
+  <div class="cap">U – Danh sách bạn bè <span>FriendListPanel – Nhân (BaseTablePanel)</span></div>
+  <div class="pad"><div class="row"><span class="ttl">Bạn bè</span><span class="sp"></span><span class="btn">Nhắn tin</span><span class="btn dan">Huỷ kết bạn</span><span class="btn dan">Chặn</span></div><br>
+  <div class="row"><div class="in" style="width:220px">Tìm theo tên</div><span>Trạng thái:</span><div class="in sel">Tất cả</div><span class="sp"></span><span>Sắp xếp:</span><div class="in sel">Tên (A-Z)</div></div><br>
+  <table><tr><th></th><th>Tên đăng nhập</th><th>Họ tên</th><th>Trạng thái</th></tr>
+  <tr><td><span class="dot on"></span></td><td>lanpt</td><td>Phạm Thị Lan</td><td>Online</td></tr><tr><td><span class="dot"></span></td><td>minhlq</td><td>Lê Quang Minh</td><td>Offline</td></tr><tr><td><span class="dot on"></span></td><td>taitp</td><td>Trần Phước Tài</td><td>Online</td></tr></table><div class="mut">3 / 3 dòng</div></div>
+</div>
+
+<div class="wf" id="user/10-friend-requests">
+  <div class="cap">U – Lời mời kết bạn <span>FriendRequestPanel – Nhân (BaseTablePanel)</span></div>
+  <div class="pad"><div class="row"><span class="ttl">Lời mời kết bạn</span><span class="sp"></span><span class="btn dan">Từ chối</span><span class="btn pri">Đồng ý</span></div><br>
+  <div class="row"><div class="in" style="width:220px">Tìm theo tên</div><span class="sp"></span><span>Sắp xếp:</span><div class="in sel">Mới nhất</div></div><br>
+  <table><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Thời gian gửi</th></tr><tr><td>myltk</td><td>Lê Thị Kiều My</td><td>2026-11-16 20:10</td></tr><tr><td>phucvh</td><td>Vũ Hoàng Phúc</td><td>2026-11-15 08:44</td></tr></table></div>
+</div>
+
+<div class="wf" id="user/11-online-friends">
+  <div class="cap">U – Bạn bè đang online <span>OnlineFriendPanel – Nhân (BaseTablePanel)</span></div>
+  <div class="pad"><div class="row"><span class="ttl">Bạn bè đang online</span><span class="sp"></span><span class="btn">+ Tạo nhóm</span><span class="btn pri">Nhắn tin</span></div><br>
+  <div class="row"><div class="in" style="width:220px">Tìm theo tên</div></div><br>
+  <table><tr><th></th><th>Tên đăng nhập</th><th>Họ tên</th></tr><tr><td><span class="dot on"></span></td><td>lanpt</td><td>Phạm Thị Lan</td></tr><tr><td><span class="dot on"></span></td><td>taitp</td><td>Trần Phước Tài</td></tr></table></div>
+</div>
+
+<div class="wf" id="user/12-find-people">
+  <div class="cap">U – Tìm người <span>FindPeoplePanel – Tài (BaseTablePanel)</span></div>
+  <div class="pad"><div class="row"><span class="ttl">Tìm người</span><span class="sp"></span><span class="btn">Nhắn tin</span><span class="btn dan">Chặn</span><span class="btn dan">Báo cáo spam</span><span class="btn pri">+ Kết bạn</span></div><br>
+  <div class="row"><div class="in" style="width:300px">Nhập tên đăng nhập hoặc họ tên</div><span class="btn">Tìm</span></div><br>
+  <table><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Quan hệ</th></tr><tr><td>huongvt</td><td>Võ Thu Hương</td><td>Chưa kết bạn</td></tr><tr><td>lanpt</td><td>Phạm Thị Lan</td><td>Bạn bè</td></tr><tr><td>ducnm</td><td>Ngô Minh Đức</td><td>Đã gửi lời mời</td></tr></table></div>
+</div>
+
+<div class="wf" id="user/13-search-messages">
+  <div class="cap">U – Tìm trong toàn bộ tin nhắn <span>MessageSearchPanel – Nhân (BaseTablePanel)</span></div>
+  <div class="pad"><div class="row"><span class="ttl">Tìm trong tin nhắn</span><span class="sp"></span><span class="btn pri">Mở đoạn chat</span></div><br>
+  <div class="row"><div class="in" style="width:300px">Nhập từ khoá</div><span>Trong:</span><div class="in sel">Tất cả hội thoại</div></div><br>
+  <table><tr><th>Hội thoại</th><th>Người gửi</th><th>Nội dung</th><th>Thời gian</th></tr><tr><td>Nhóm đồ án Java</td><td>Tài</td><td>…nhớ push <mark>code</mark> trước 22:00…</td><td>2026-11-16 20:58</td></tr><tr><td>Phạm Thị Lan</td><td>Bạn</td><td>…gửi <mark>code</mark> mẫu nhé…</td><td>2026-11-10 09:12</td></tr></table>
+  <div class="mut">Bấm đúp 1 dòng → mở khung chat, nhảy đến tin nhắn đó</div></div>
+</div>
+
+<div class="wf small" id="user/14-spam-report-dialog">
+  <div class="cap">U – Dialog báo cáo spam <span>ReportSpamDialog – Tài</span></div>
+  <div class="pad"><div class="h">Báo cáo spam</div><div class="mut">Admin sẽ xem xét và có thể khoá tài khoản này</div><br>
+  <div class="form"><span>Tài khoản</span><div class="in">minhlq – Lê Quang Minh</div><span>Lý do</span><div class="in sel">Gửi tin rác</div><span>Mô tả thêm</span><div class="in" style="height:60px">Không bắt buộc</div></div><br>
+  <div class="row"><span class="sp"></span><span class="btn">Huỷ</span><span class="btn dan" style="background:#fff">Báo cáo</span></div></div>
+</div>
+
+<!-- ===================================================== ADMIN ===================================================== -->
+<h2>Phân hệ quản trị</h2>
+<div id="admin-root"></div>
+
+<script>
+// Mẫu chung cho mọi màn danh sách admin (BaseTablePanel) + ghi chú riêng từng màn
+const MENU = ["Quản lý người dùng","Lịch sử đăng nhập","Người dùng mới","Số lượng bạn bè","Người dùng hoạt động","|Nhóm & báo cáo","Nhóm chat","Báo cáo spam","|Thống kê","Biểu đồ đăng ký","Biểu đồ hoạt động"];
+function side(active){
+  return '<div class="side"><div class="h" style="color:#fff">Chat Admin</div><div class="sec">NGƯỜI DÙNG</div>'+
+    MENU.map(m=>m[0]=='|'?`<div class="sec">${m.slice(1).toUpperCase()}</div>`:`<div class="${m==active?'act':''}">${m}</div>`).join('')+'</div>';
+}
+function btn(b){ const c=b.startsWith('!')?'dan':b.startsWith('*')?'pri':''; return `<span class="btn ${c}">${b.replace(/^[!*]/,'')}</span>`; }
+function list(s){
+  const rows=s.rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('');
+  return `<div class="wf" id="${s.id}"><div class="cap">${s.code} – ${s.title} <span>${s.cls} – ${s.who}</span></div>
+  <div class="frame">${side(s.menu)}<div class="pad" style="flex:1">
+   <div class="row"><span class="ttl">${s.title}</span><span class="sp"></span>${s.btns.map(btn).join('')}</div><br>
+   <div class="row"><div class="in" style="width:200px">${s.search}</div>${(s.filters||[]).join('')}<span class="sp"></span>${s.sort?'<span>Sắp xếp:</span><div class="in sel">'+s.sort+'</div>':''}</div><br>
+   <table><tr>${s.cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows}</table><div class="mut" style="margin-top:6px">${s.rows.length} / ${s.rows.length} dòng</div>
+  </div></div>
+  <div class="notes"><ul style="margin:0;padding-left:16px">${s.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div></div>`;
+}
+const F_DATE='<span>Từ:</span><div class="in">yyyy-MM-dd</div><span>Đến:</span><div class="in">yyyy-MM-dd</div>';
+const F_NUM=l=>`<span>${l}</span><div class="in sel">=</div><div class="in" style="min-width:40px">Số</div>`;
+const SCREENS=[
+ {id:"admin/00-list-template",code:"Mẫu",title:"Tiêu đề màn hình",cls:"BaseTablePanel",who:"mẫu chung",menu:"",btns:["Nút","Nút","!Xoá","*+ Thêm"],search:"Tìm kiếm...",filters:['<span>Bộ lọc:</span><div class="in sel">…</div>'],sort:"…",cols:["Cột 1","Cột 2","Cột 3","…"],rows:[["…","…","…","…"],["…","…","…","…"],["…","…","…","…"]],
+  notes:["Hàng 1: tiêu đề (trái) – nút thường → nút nguy hiểm → nút chính ngoài cùng bên phải","Hàng 2: ô tìm + bộ lọc riêng (trái) – Sắp xếp (phải)","Dưới bảng: số dòng đang hiện / tổng","Mọi màn danh sách admin kế thừa BaseTablePanel, chỉ khác cột, bộ lọc, nút (ghi chú ở từng ảnh)"]},
+ {id:"admin/01-user-management",code:"A1",title:"Quản lý người dùng",cls:"UserManagementPanel",who:"Tài",menu:"Quản lý người dùng",btns:["Lịch sử đăng nhập","Bạn bè","Đổi mật khẩu","Khoá / Mở khoá","!Xoá","Sửa","*+ Thêm"],search:"Tìm theo tên / tên đăng nhập",filters:['<span>Trạng thái:</span><div class="in sel">Tất cả</div>'],sort:"Tên (A-Z)",cols:["Tên đăng nhập","Họ tên","Địa chỉ","Ngày sinh","Giới tính","Email","Trạng thái","Ngày tạo"],rows:[["taitp","Trần Phước Tài","227 Nguyễn Văn Cừ","2006-05-03","Nam","tai@…","Hoạt động","2026-09-01"],["minhlq","Lê Quang Minh","90 Điện Biên Phủ","2004-07-09","Nam","minh@…","Bị khoá","2026-09-20"]],
+  notes:["Lọc: tên / tên đăng nhập / trạng thái. Sắp xếp: tên, ngày tạo","+ Thêm / Sửa → dialog form (Tên đăng nhập, Họ tên, Địa chỉ, Ngày sinh, Giới tính, Email)","Đổi mật khẩu → dialog 2 ô mật khẩu. Xoá / Khoá → dialog xác nhận nút đỏ","Lịch sử đăng nhập, Bạn bè → dialog chỉ xem (bảng + nút Đóng)"]},
+ {id:"admin/02-login-list",code:"A2",title:"Danh sách đăng nhập",cls:"LoginListPanel",who:"Khang",menu:"Lịch sử đăng nhập",btns:["Làm mới"],search:"Tìm theo tên / tên đăng nhập",filters:[F_DATE],sort:"Mới nhất",cols:["Thời gian","Tên đăng nhập","Họ tên"],rows:[["2026-11-17 08:12","taitp","Trần Phước Tài"],["2026-11-17 07:55","lanpt","Phạm Thị Lan"],["2026-11-16 22:41","khangndh","Nguyễn Đặng Hoàng Khang"]],
+  notes:["Sắp theo thứ tự thời gian (mặc định mới nhất trước)","Cột: thời gian, tên đăng nhập, họ tên"]},
+ {id:"admin/03-group-list",code:"A3",title:"Danh sách nhóm chat",cls:"GroupListPanel",who:"Khang",menu:"Nhóm chat",btns:["Xem thành viên","Xem admin"],search:"Tìm theo tên nhóm",sort:"Tên (A-Z)",cols:["Tên nhóm","Số thành viên","Số admin","Mã hoá","Ngày tạo"],rows:[["Nhóm đồ án Java","3","1","Có","2026-11-16"],["Lớp 24CTT3","42","2","Không","2026-09-05"],["CLB Guitar HCMUS","18","2","Không","2026-09-12"]],
+  notes:["Sắp xếp theo tên / thời gian tạo, lọc theo tên nhóm","Xem thành viên / Xem admin → GroupMembersDialog chỉ xem (Tên đăng nhập, Họ tên, Vai trò, Ngày tham gia)"]},
+ {id:"admin/04-spam-report-list",code:"A4",title:"Danh sách báo cáo spam",cls:"SpamReportListPanel",who:"Khang",menu:"Báo cáo spam",btns:["!Khoá tài khoản"],search:"Tìm theo tên đăng nhập",filters:[F_DATE],sort:"Mới nhất",cols:["Thời gian","Tên đăng nhập bị báo cáo","Họ tên","Người báo cáo","Trạng thái tài khoản"],rows:[["2026-11-17 09:20","minhlq","Lê Quang Minh","lanpt","Bị khoá"],["2026-11-16 15:42","ducnm","Ngô Minh Đức","baodq","Hoạt động"]],
+  notes:["Sắp xếp theo thời gian / tên đăng nhập","Lọc theo khoảng thời gian và tên đăng nhập","Khoá tài khoản → dialog xác nhận nút đỏ"]},
+ {id:"admin/05-new-user-list",code:"A5",title:"Người dùng đăng ký mới",cls:"NewUserListPanel",who:"Khang",menu:"Người dùng mới",btns:["*Xem"],search:"Tìm theo tên",filters:[F_DATE],sort:"Mới tạo nhất",cols:["Tên đăng nhập","Họ tên","Email","Ngày tạo"],rows:[["phucvh","Vũ Hoàng Phúc","phuc@…","2026-11-14"],["myltk","Lê Thị Kiều My","my@…","2026-11-10"],["anhht","Hoàng Tuấn Anh","anh@…","2026-11-05"]],
+  notes:["Chọn khoảng thời gian (Từ – Đến) rồi bấm Xem","Sắp xếp theo tên / thời gian tạo, lọc theo tên"]},
+ {id:"admin/07-friend-count-list",code:"A7",title:"Người dùng và số lượng bạn bè",cls:"FriendCountListPanel",who:"Khang",menu:"Số lượng bạn bè",btns:[],search:"Tìm theo tên",filters:[F_NUM("Số bạn:")],sort:"Tên (A-Z)",cols:["Tên đăng nhập","Họ tên","Ngày tạo","Số bạn trực tiếp","Số bạn (gồm bạn của bạn)"],rows:[["taitp","Trần Phước Tài","2026-09-01","9","24"],["lanpt","Phạm Thị Lan","2026-09-15","5","17"],["phucvh","Vũ Hoàng Phúc","2026-11-14","0","0"]],
+  notes:["2 cột số: bạn trực tiếp, và tính cả bạn của bạn","Lọc theo tên; lọc số bạn trực tiếp =, <, > một số nhập vào","Sắp xếp theo tên / thời gian tạo"]},
+ {id:"admin/08-active-user-list",code:"A8",title:"Người dùng hoạt động",cls:"ActiveUserListPanel",who:"Khang",menu:"Người dùng hoạt động",btns:["*Xem"],search:"Tìm theo tên",filters:[F_DATE,F_NUM("Số hoạt động:")],sort:"Tên (A-Z)",cols:["Tên đăng nhập","Họ tên","Ngày tạo","Mở ứng dụng","Số người đã chat","Số nhóm đã chat"],rows:[["taitp","Trần Phước Tài","2026-09-01","34","8","4"],["lanpt","Phạm Thị Lan","2026-09-15","18","5","2"],["phucvh","Vũ Hoàng Phúc","2026-11-14","2","0","0"]],
+  notes:["Chọn khoảng thời gian rồi bấm Xem","Cột: số lần mở ứng dụng, số người đã chat, số nhóm đã chat","Lọc theo tên; lọc số hoạt động =, <, > một số nhập vào. Sắp xếp theo tên / thời gian tạo"]},
+];
+function chart(id,code,title,cls,menu,vals,axis){
+  const max=Math.max(...vals);
+  return `<div class="wf" id="${id}"><div class="cap">${code} – ${title} <span>${cls} – Khang (JFreeChart)</span></div>
+  <div class="frame">${side(menu)}<div class="pad" style="flex:1">
+   <div class="row"><span class="ttl">${title}</span><span class="sp"></span><span>Năm:</span><div class="in sel">2026</div><span class="btn pri">Xem</span></div><br>
+   <div class="chart"><span style="position:absolute;left:-4px;top:40%;transform:rotate(-90deg);font-size:11px">${axis}</span>${vals.map((v,i)=>`<div class="bar" style="height:${v/max*240}px"><b>T${i+1}</b></div>`).join('')}</div>
+   <div class="mut" style="margin-top:24px">Tổng năm 2026: ${vals.reduce((a,b)=>a+b)}</div></div></div>
+  <div class="notes"><ul style="margin:0;padding-left:16px"><li>Chọn năm → bấm Xem. Trục hoành: 12 tháng, trục tung: ${axis.toLowerCase()}</li><li>Biểu đồ cột 1 màu PRIMARY, nền trắng, không 3D, không legend</li></ul></div></div>`;
+}
+const DLG=`<div class="wf" id="admin/03b-group-members-dialog" style="width:640px"><div class="cap">A3 – Dialog thành viên / admin nhóm <span>GroupMembersDialog – Khang</span></div>
+ <div class="pad"><div class="h">Thành viên nhóm</div><div class="mut">Nhóm: Nhóm đồ án Java</div><br>
+ <div class="row"><div class="in" style="width:200px">Tìm theo tên</div><span class="sp"></span><span>Sắp xếp:</span><div class="in sel">Tên (A-Z)</div></div><br>
+ <table><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Ngày tham gia</th></tr><tr><td>taitp</td><td>Trần Phước Tài</td><td>Admin</td><td>2026-11-16</td></tr><tr><td>khangndh</td><td>Nguyễn Đặng Hoàng Khang</td><td>Admin</td><td>2026-11-16</td></tr><tr><td>nhanntt</td><td>Nguyễn Trần Trung Nhân</td><td>Thành viên</td><td>2026-11-16</td></tr></table><br>
+ <div class="row"><span class="sp"></span><span class="btn pri">Đóng</span></div></div>
+ <div class="notes">Cùng 1 dialog cho 2 nút: "Xem thành viên" (tất cả) và "Xem admin" (chỉ dòng có vai trò Admin, tiêu đề "Admin của nhóm")</div></div>`;
+let html='';
+SCREENS.forEach(s=>{ html+=list(s); if(s.id=="admin/03-group-list") html+=DLG; if(s.id=="admin/05-new-user-list") html+=chart("admin/06-registration-chart","A6","Biểu đồ đăng ký mới theo năm","RegistrationChartPanel","Biểu đồ đăng ký",[4,6,3,8,5,7,9,12,18,14,11,0],"Số người đăng ký"); });
+html+=chart("admin/09-activity-chart","A9","Biểu đồ hoạt động theo năm","ActivityChartPanel","Biểu đồ hoạt động",[15,18,17,22,20,19,16,24,38,45,52,0],"Số người hoạt động");
+document.getElementById('admin-root').innerHTML=html;
+</script>
+</body>
+</html>
