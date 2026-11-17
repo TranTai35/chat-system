@@ -46,6 +46,7 @@ erDiagram
         int id PK
         enum type "PRIVATE | GROUP"
         varchar name "chỉ nhóm có"
+        varchar private_key UK "chỉ chat riêng: id nhỏ_id lớn"
         bool is_encrypted
         int key_version
         int created_by FK
@@ -100,8 +101,8 @@ erDiagram
     users |o--o{ conversations : "tạo"
     conversations ||--o{ messages : "chứa"
     users |o--o{ messages : "gửi"
-    users ||--o{ message_hidden : "ẩn tin"
-    messages ||--o{ message_hidden : "bị ẩn"
+    users ||--o{ message_hidden : "người xoá"
+    messages ||--o{ message_hidden : "tin bị ẩn"
     users ||--o{ spam_reports : "báo cáo / bị báo cáo"
     conversations |o--o{ spam_reports : "nơi báo cáo"
     conversation_members ||--o{ group_keys : "giữ khoá"

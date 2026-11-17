@@ -23,7 +23,7 @@ Schema thiết kế cho cả **Phiên bản 2** (mã hoá nhóm, thống kê, xo
 | 4 | `friendships` | Quan hệ bạn bè, **mỗi quan hệ 2 dòng** (A,B) và (B,A) | DS bạn bè, bạn online, DS user + số bạn bè |
 | 5 | `friend_requests` | Lời mời kết bạn đang chờ | DS lời mời kết bạn, Tìm người |
 | 6 | `blocks` | Ai chặn ai | Nút Chặn, lọc tin nhắn / lời mời |
-| 7 | `conversations` | Hội thoại: `PRIVATE` (2 người) hoặc `GROUP` (tên, có mã hoá không, phiên bản khoá) | Khung chat, DS nhóm chat (admin) |
+| 7 | `conversations` | Hội thoại: `PRIVATE` (2 người, có `private_key` để không tạo trùng) hoặc `GROUP` (tên, có mã hoá không, phiên bản khoá) | Khung chat, DS nhóm chat (admin) |
 | 8 | `conversation_members` | Thành viên hội thoại, vai trò `ADMIN`/`MEMBER`, mốc đã đọc (đếm tin chưa đọc khi offline), mốc xoá lịch sử | Tạo / quản lý nhóm, DS thành viên, DS admin nhóm |
 | 9 | `messages` | Tin nhắn (bản rõ, hoặc bản mã nếu nhóm mã hoá) | Khung chat, tìm trong cuộc chat, tìm toàn bộ tin nhắn |
 | 10 | `message_hidden` | Tin nhắn mà 1 người đã xoá phía mình | Xoá 1 tin nhắn |
@@ -36,9 +36,10 @@ Schema thiết kế cho cả **Phiên bản 2** (mã hoá nhóm, thống kê, xo
 - **Bạn bè lưu 2 chiều.** Kết bạn thì thêm 2 dòng, huỷ thì xoá 2 dòng (trong 1 transaction). Truy vấn "bạn của A" chỉ cần `WHERE user_id = A`, và đếm bạn của bạn bằng 1 phép JOIN.
 - **Lời mời chỉ lưu khi đang chờ.** Đồng ý thì thêm vào `friendships` rồi xoá lời mời, từ chối thì xoá lời mời.
 - **Chat riêng và chat nhóm dùng chung** `conversations` + `messages`, phân biệt bằng `type`. Khung chat chỉ cần 1 màn hình.
+- **Mỗi 2 người chỉ có 1 cuộc chat riêng.** Chat riêng có `private_key = "<id nhỏ>_<id lớn>"` (vd user 7 và 3 -> `"3_7"`), cột này `UNIQUE` nên không thể tạo trùng, kể cả khi 2 người cùng bấm chat một lúc. Nhóm có `private_key = NULL` (MySQL cho phép nhiều NULL trong cột UNIQUE). Một `CHECK` đảm bảo chat riêng luôn có `private_key`, nhóm thì không. Tìm hoặc tạo chat riêng: `INSERT ... ON DUPLICATE KEY UPDATE` hoặc `SELECT ... WHERE private_key = '3_7'`.
 - **Xoá tin phía mình không ảnh hưởng người khác:**
   - Xoá 1 tin: thêm 1 dòng `message_hidden`.
-  - Xoá toàn bộ lịch sử: đặt `conversation_members.cleared_at = NOW()`, tin gửi trước mốc này bị ẩn với người đó.
+  - Xoá toàn bộ lịch sử: đặt `conversation_members.cleared_at = NOW(3)`, tin gửi trước mốc này bị ẩn với người đó. `cleared_at` là `DATETIME(3)` (mili giây) giống `messages.sent_at`, nên tin gửi ngay sau khi bấm xoá không bị ẩn nhầm.
 - **Mã hoá nhóm (tham khảo Facebook).** Mỗi user có 1 cặp khoá RSA:
   - `public_key` để người khác mã hoá khoá nhóm gửi cho mình.
   - `private_key_enc` là khoá bí mật đã mã hoá bằng mật khẩu, nhờ vậy đăng nhập ở máy khác vẫn đọc được tin. Server không bao giờ thấy khoá bí mật gốc.
@@ -72,6 +73,9 @@ SELECT u.username,
   (SELECT COUNT(DISTINCT m.conversation_id) FROM messages m JOIN conversations c ON c.id = m.conversation_id
      WHERE m.sender_id = u.id AND c.type = 'GROUP' AND m.sent_at BETWEEN :tu AND :den) AS so_nhom_da_chat
 FROM users u;
+
+-- Tìm hoặc tạo chat riêng giữa :a và :b (id nhỏ đứng trước)
+SELECT id FROM conversations WHERE private_key = CONCAT(LEAST(:a, :b), '_', GREATEST(:a, :b));
 
 -- Tin nhắn user :me nhìn thấy trong 1 cuộc chat (đã trừ tin bị xoá phía mình)
 SELECT m.* FROM messages m
@@ -131,7 +135,7 @@ Mỗi chức năng trong đề bài lấy dữ liệu từ bảng nào. "Java" n
 | Chat thời gian thực khi online | Java (socket); tin vẫn lưu vào `messages` |
 | Gửi tin khi bạn offline để xem sau | `messages` + `conversation_members.last_read_at` (đếm tin chưa đọc) |
 | Xem lịch sử chat | `messages` (`conversation_id`, `sent_at`) |
-| Xoá toàn bộ lịch sử chat (phía mình) | `conversation_members.cleared_at` |
+| Xoá toàn bộ lịch sử chat (phía mình) | `conversation_members.cleared_at` (`DATETIME(3)`) |
 | Xoá 1 hoặc vài dòng (phía mình) | `message_hidden` |
 | Tìm chuỗi trong 1 cuộc chat / tất cả cuộc chat, nhảy tới đoạn đó | `messages.content LIKE`, kết quả có `conversation_id` + `id` |
 | Gọi LLM gợi ý / chỉnh tin nhắn | Java (gọi API), không lưu CSDL |

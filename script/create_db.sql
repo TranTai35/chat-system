@@ -12,6 +12,8 @@
 --   - Thời gian lưu DATETIME theo giờ máy chủ.
 --   - Xoá user -> các dữ liệu "của riêng user đó" xoá theo (CASCADE).
 --     Tin nhắn trong nhóm vẫn giữ lại, chỉ mất người gửi (SET NULL).
+--   - Chat riêng: tầng Java đặt conversations.private_key = "<id nhỏ>_<id lớn>"
+--     của 2 người; UNIQUE nên 2 người chỉ có đúng 1 cuộc chat riêng.
 --   - MySQL không cho CHECK trên cột khoá ngoại có CASCADE/SET NULL, nên
 --     các ràng buộc kiểu "không tự kết bạn với mình" kiểm tra ở tầng Java.
 -- =====================================================================
@@ -130,6 +132,7 @@ CREATE TABLE conversations (
     id           INT          NOT NULL AUTO_INCREMENT,
     type         ENUM('PRIVATE', 'GROUP') NOT NULL,
     name         VARCHAR(100) NULL,                      -- chỉ nhóm mới có tên
+    private_key  VARCHAR(30)  NULL,                      -- chỉ chat riêng: "<id nhỏ>_<id lớn>" (vd "3_7"); chặn tạo trùng chat riêng giữa 2 người
     is_encrypted BOOLEAN      NOT NULL DEFAULT FALSE,    -- chỉ nhóm mới bật mã hoá
     key_version  INT          NOT NULL DEFAULT 0,        -- tăng mỗi lần đổi khoá nhóm (thêm/xoá thành viên)
     created_by   INT          NULL,
@@ -139,6 +142,9 @@ CREATE TABLE conversations (
         REFERENCES users (id) ON DELETE SET NULL,
     CONSTRAINT ck_conversations_group_name CHECK (type = 'PRIVATE' OR name IS NOT NULL),
     CONSTRAINT ck_conversations_private CHECK (type = 'GROUP' OR (name IS NULL AND is_encrypted = FALSE)),
+    CONSTRAINT ck_conversations_private_key CHECK (
+        (type = 'PRIVATE' AND private_key IS NOT NULL) OR (type = 'GROUP' AND private_key IS NULL)),
+    CONSTRAINT uq_conversations_private_key UNIQUE (private_key),  -- NULL (nhóm) không bị coi là trùng
     INDEX idx_conversations_type_name (type, name),     -- DS nhóm chat: lọc / sắp xếp theo tên
     INDEX idx_conversations_created_at (created_at)
 ) ENGINE = InnoDB;
@@ -149,7 +155,7 @@ CREATE TABLE conversation_members (
     role            ENUM('ADMIN', 'MEMBER') NOT NULL DEFAULT 'MEMBER',  -- admin nhóm
     joined_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_read_at    DATETIME(3) NULL,  -- lần cuối mở cuộc chat: tin gửi sau mốc này là "chưa đọc" (tin nhận lúc offline)
-    cleared_at      DATETIME NULL,     -- "Xoá toàn bộ lịch sử" phía mình: ẩn tin gửi trước mốc này
+    cleared_at      DATETIME(3) NULL,  -- "Xoá toàn bộ lịch sử" phía mình: ẩn tin gửi trước mốc này (cùng độ chính xác với messages.sent_at)
     CONSTRAINT pk_conversation_members PRIMARY KEY (conversation_id, user_id),
     CONSTRAINT fk_conversation_members_conv FOREIGN KEY (conversation_id)
         REFERENCES conversations (id) ON DELETE CASCADE,
