@@ -47,11 +47,6 @@ public class GroupMembersDialog extends BaseDialog {
                 {"taitp", "Trần Phước Tài", "Admin", "2026-11-16"},
                 {"khangndh", "Nguyễn Đặng Hoàng Khang", "Thành viên", "2026-11-16"},
                 {"nhanntt", "Nguyễn Trần Trung Nhân", "Thành viên", "2026-11-16"},
-                {"lanpt", "Phạm Thị Lan", "Thành viên", "2026-11-16"},
-                {"huongvt", "Võ Thu Hương", "Thành viên", "2026-11-16"},
-                {"baodq", "Đỗ Quốc Bảo", "Thành viên", "2026-11-17"},
-                {"myltk", "Lê Thị Kiều My", "Thành viên", "2026-11-17"},
-                {"phucvh", "Vũ Hoàng Phúc", "Thành viên", "2026-11-17"},
         };
         for (Object[] r : rows) {
             if (!adminsOnly || "Admin".equals(r[2])) {
