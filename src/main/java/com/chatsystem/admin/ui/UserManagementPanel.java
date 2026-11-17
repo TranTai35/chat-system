@@ -4,6 +4,7 @@ import com.chatsystem.common.ui.BaseTablePanel;
 import com.chatsystem.common.ui.UiUtil;
 
 import javax.swing.*;
+import java.awt.Window;
 
 /**
  * Admin 1. Quản lý danh sách người dùng.
@@ -69,6 +70,7 @@ public class UserManagementPanel extends BaseTablePanel {
         setColumnWidth(COL_CREATED, 95);
 
         loadMockData();
+        wireDialogs();
     }
 
     /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1. */
@@ -85,6 +87,50 @@ public class UserManagementPanel extends BaseTablePanel {
         addRow("anhht", "Hoàng Tuấn Anh", "16 Lý Thường Kiệt, Q11", "2006-06-06", "Nam", "anh@example.com", "Hoạt động", "2026-11-05");
         addRow("myltk", "Lê Thị Kiều My", "28 Nguyễn Trãi, Q5", "2006-09-27", "Nữ", "my@example.com", "Hoạt động", "2026-11-10");
         addRow("phucvh", "Vũ Hoàng Phúc", "64 Pasteur, Q1", "2004-10-15", "Nam", "phuc@example.com", "Hoạt động", "2026-11-14");
+    }
+
+    /**
+     * Mở các dialog khi bấm nút (để xem và chụp hình giao diện).
+     * Phiên bản 2 sẽ thay phần thân của các listener này bằng xử lý thật.
+     */
+    private void wireDialogs() {
+        addButton.addActionListener(e -> new UserFormDialog(owner()).setVisible(true));
+        editButton.addActionListener(e -> withSelectedRow(row ->
+                new UserFormDialog(owner(), cell(row, COL_USERNAME), cell(row, COL_FULLNAME),
+                        cell(row, COL_ADDRESS), cell(row, COL_DOB), cell(row, COL_GENDER),
+                        cell(row, COL_EMAIL)).setVisible(true)));
+        deleteButton.addActionListener(e -> withSelectedRow(row ->
+                ConfirmDialog.delete(owner(), cell(row, COL_USERNAME)).setVisible(true)));
+        lockButton.addActionListener(e -> withSelectedRow(row -> {
+            String username = cell(row, COL_USERNAME);
+            boolean locked = "Bị khoá".equals(cell(row, COL_STATUS));
+            (locked ? ConfirmDialog.unlock(owner(), username) : ConfirmDialog.lock(owner(), username))
+                    .setVisible(true);
+        }));
+        passwordButton.addActionListener(e -> withSelectedRow(row ->
+                new ChangePasswordDialog(owner(), cell(row, COL_USERNAME)).setVisible(true)));
+        loginHistoryButton.addActionListener(e -> withSelectedRow(row ->
+                new LoginHistoryDialog(owner(), cell(row, COL_USERNAME), cell(row, COL_FULLNAME)).setVisible(true)));
+        friendsButton.addActionListener(e -> withSelectedRow(row ->
+                new FriendListDialog(owner(), cell(row, COL_USERNAME), cell(row, COL_FULLNAME)).setVisible(true)));
+    }
+
+    private Window owner() {
+        return SwingUtilities.getWindowAncestor(this);
+    }
+
+    private String cell(int modelRow, int column) {
+        return String.valueOf(getModel().getValueAt(modelRow, column));
+    }
+
+    /** Chạy action với dòng đang chọn; chưa chọn dòng nào thì nhắc người dùng. */
+    private void withSelectedRow(java.util.function.IntConsumer action) {
+        int row = getSelectedModelRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(owner(), "Vui lòng chọn một người dùng trong bảng.");
+            return;
+        }
+        action.accept(row);
     }
 
     // Getter để gắn sự kiện ở Phiên bản 2
