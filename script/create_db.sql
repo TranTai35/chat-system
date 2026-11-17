@@ -38,6 +38,8 @@ CREATE TABLE users (
     is_locked     BOOLEAN      NOT NULL DEFAULT FALSE,   -- admin khoá tài khoản
     is_online     BOOLEAN      NOT NULL DEFAULT FALSE,
     public_key    TEXT         NULL,                     -- khoá công khai (Base64), dùng cho nhóm mã hoá
+    private_key_enc TEXT       NULL,                     -- khoá bí mật đã mã hoá bằng mật khẩu (salt:iv:bản mã, Base64),
+                                                         -- để đăng nhập máy khác vẫn đọc được nhóm mã hoá (giống Facebook)
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- ngày đăng ký
     CONSTRAINT pk_users PRIMARY KEY (id),
     CONSTRAINT uq_users_username UNIQUE (username),
@@ -173,9 +175,11 @@ CREATE TABLE messages (
         REFERENCES conversations (id) ON DELETE CASCADE,
     CONSTRAINT fk_messages_sender FOREIGN KEY (sender_id)
         REFERENCES users (id) ON DELETE SET NULL,
-    INDEX idx_messages_conv_time (conversation_id, sent_at),  -- tải lịch sử 1 cuộc chat
-    INDEX idx_messages_sender_time (sender_id, sent_at),      -- thống kê số người / nhóm đã chat
-    FULLTEXT INDEX ft_messages_content (content)               -- tìm kiếm trong toàn bộ tin nhắn
+    INDEX idx_messages_conv_time (conversation_id, sent_at),  -- tải lịch sử / tìm chuỗi trong các cuộc chat của mình
+    INDEX idx_messages_sender_time (sender_id, sent_at)       -- thống kê số người / nhóm đã chat
+    -- Không dùng FULLTEXT: đề yêu cầu "tìm kiếm chuỗi" (chuỗi con), FULLTEXT chỉ khớp
+    -- nguyên từ >= 3 ký tự nên tìm "ok", "Jav" không ra. Tìm bằng LIKE '%chuỗi%'
+    -- (collation ai_ci nên "hop nhom" khớp "Họp nhóm"). Tin mã hoá thì giải mã rồi tìm ở máy người dùng.
 ) ENGINE = InnoDB;
 
 -- "Xoá 1 tin nhắn" phía mình: chỉ ẩn với người xoá, người khác vẫn thấy.
