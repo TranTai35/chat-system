@@ -24,18 +24,18 @@ public class AdminMainFrame extends JFrame {
 
         menu.addSection("Người dùng");
         menu.addItem("Quản lý người dùng", new UserManagementPanel());                         // Tài
-        menu.addItem("Lịch sử đăng nhập", new PlaceholderPanel("Danh sách đăng nhập", "Khang"));
-        menu.addItem("Người dùng mới", new PlaceholderPanel("Người dùng đăng ký mới", "Khang"));
-        menu.addItem("Số lượng bạn bè", new PlaceholderPanel("Người dùng và số lượng bạn bè", "Khang"));
-        menu.addItem("Người dùng hoạt động", new PlaceholderPanel("Người dùng hoạt động", "Khang"));
+        menu.addItem("Lịch sử đăng nhập", new LoginListPanel());  // Khang
+        menu.addItem("Người dùng mới", new NewUserListPanel());  // Khang
+        menu.addItem("Số lượng bạn bè", new FriendCountListPanel());  // Khang
+        menu.addItem("Người dùng hoạt động", new ActiveUserListPanel());  // Khang
 
         menu.addSection("Nhóm & báo cáo");
-        menu.addItem("Nhóm chat", new PlaceholderPanel("Danh sách nhóm chat", "Khang"));
-        menu.addItem("Báo cáo spam", new PlaceholderPanel("Danh sách báo cáo spam", "Khang"));
+        menu.addItem("Nhóm chat", new GroupListPanel());  // Khang
+        menu.addItem("Báo cáo spam", new SpamReportListPanel());  // Khang
 
         menu.addSection("Thống kê");
-        menu.addItem("Biểu đồ đăng ký", new PlaceholderPanel("Biểu đồ đăng ký mới theo năm", "Khang"));
-        menu.addItem("Biểu đồ hoạt động", new PlaceholderPanel("Biểu đồ hoạt động theo năm", "Khang"));
+        menu.addItem("Biểu đồ đăng ký", new RegistrationChartPanel());  // Khang
+        menu.addItem("Biểu đồ hoạt động", new ActivityChartPanel());  // Khang
 
         menu.addFooterItem("Đăng xuất", new PlaceholderPanel("Đăng xuất", "Khang"));
 
