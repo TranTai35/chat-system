@@ -146,6 +146,7 @@ CREATE TABLE conversation_members (
     user_id         INT      NOT NULL,
     role            ENUM('ADMIN', 'MEMBER') NOT NULL DEFAULT 'MEMBER',  -- admin nhóm
     joined_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_read_at    DATETIME(3) NULL,  -- lần cuối mở cuộc chat: tin gửi sau mốc này là "chưa đọc" (tin nhận lúc offline)
     cleared_at      DATETIME NULL,     -- "Xoá toàn bộ lịch sử" phía mình: ẩn tin gửi trước mốc này
     CONSTRAINT pk_conversation_members PRIMARY KEY (conversation_id, user_id),
     CONSTRAINT fk_conversation_members_conv FOREIGN KEY (conversation_id)

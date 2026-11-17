@@ -55,6 +55,7 @@ erDiagram
         int user_id PK, FK
         enum role "ADMIN | MEMBER"
         datetime joined_at
+        datetime last_read_at "tin chưa đọc"
         datetime cleared_at "xoá lịch sử phía mình"
     }
     messages {

@@ -24,7 +24,7 @@ Schema thiết kế cho cả **Phiên bản 2** (mã hoá nhóm, thống kê, xo
 | 5 | `friend_requests` | Lời mời kết bạn đang chờ | DS lời mời kết bạn, Tìm người |
 | 6 | `blocks` | Ai chặn ai | Nút Chặn, lọc tin nhắn / lời mời |
 | 7 | `conversations` | Hội thoại: `PRIVATE` (2 người) hoặc `GROUP` (tên, có mã hoá không, phiên bản khoá) | Khung chat, DS nhóm chat (admin) |
-| 8 | `conversation_members` | Thành viên hội thoại, vai trò `ADMIN`/`MEMBER`, mốc xoá lịch sử | Tạo / quản lý nhóm, DS thành viên, DS admin nhóm |
+| 8 | `conversation_members` | Thành viên hội thoại, vai trò `ADMIN`/`MEMBER`, mốc đã đọc (đếm tin chưa đọc khi offline), mốc xoá lịch sử | Tạo / quản lý nhóm, DS thành viên, DS admin nhóm |
 | 9 | `messages` | Tin nhắn (bản rõ, hoặc bản mã nếu nhóm mã hoá) | Khung chat, tìm trong cuộc chat, tìm toàn bộ tin nhắn |
 | 10 | `message_hidden` | Tin nhắn mà 1 người đã xoá phía mình | Xoá 1 tin nhắn |
 | 11 | `spam_reports` | Báo cáo spam: người báo cáo, người bị báo cáo, lý do, trạng thái | Báo cáo spam, DS báo cáo spam (admin) |
