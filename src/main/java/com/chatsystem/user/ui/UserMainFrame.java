@@ -27,7 +27,7 @@ public class UserMainFrame extends JFrame {
         menu.addItem("Bạn bè", new FriendListPanel());
         menu.addItem("Lời mời kết bạn", new FriendRequestPanel());
         menu.addItem("Bạn bè đang online", new PlaceholderPanel("Bạn bè đang online", "Nhân"));
-        menu.addItem("Tìm người", new PlaceholderPanel("Tìm người", "Tài"));
+        menu.addItem("Tìm người", new FindPeoplePanel());
         menu.addItem("Tìm trong tin nhắn", new PlaceholderPanel("Tìm kiếm trong toàn bộ tin nhắn", "Nhân"));
 
         menu.addFooterItem("Tài khoản", new ProfilePanel());
