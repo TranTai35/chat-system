@@ -30,8 +30,8 @@ public class UserMainFrame extends JFrame {
         menu.addItem("Tìm người", new PlaceholderPanel("Tìm người", "Tài"));
         menu.addItem("Tìm trong tin nhắn", new PlaceholderPanel("Tìm kiếm trong toàn bộ tin nhắn", "Nhân"));
 
-        menu.addFooterItem("Tài khoản", new PlaceholderPanel("Thông tin tài khoản", "Tài"));
-        menu.addFooterItem("Đổi mật khẩu", new PlaceholderPanel("Đổi mật khẩu", "Tài"));
+        menu.addFooterItem("Tài khoản", new ProfilePanel());
+        menu.addFooterItem("Đổi mật khẩu", new ChangePasswordPanel());
         menu.addFooterItem("Đăng xuất", new PlaceholderPanel("Đăng xuất", "Tài"));
 
         getContentPane().setLayout(new BorderLayout());
