@@ -5,8 +5,6 @@ import com.chatsystem.common.ui.BaseTablePanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.Collator;
-import java.util.Locale;
 
 /**
  * Admin 3. Dialog xem thành viên / xem admin của một nhóm chat (chỉ để xem).
@@ -29,7 +27,6 @@ public class GroupMembersDialog extends BaseDialog {
         table = new BaseTablePanel("", new String[]{"Tên đăng nhập", "Họ tên", "Vai trò", "Ngày tham gia"});
         table.setSearchPlaceholder("Tìm theo tên");
         table.setSearchColumns(0, 1);
-        table.getSorter().setComparator(1, Collator.getInstance(new Locale("vi", "VN")));  // sắp xếp họ tên tiếng Việt
         table.addSortOption("Tên (A-Z)", 1, SortOrder.ASCENDING);
         table.addSortOption("Mới tham gia", 3, SortOrder.DESCENDING);
         table.setBorder(BorderFactory.createEmptyBorder());   // dialog đã có lề
