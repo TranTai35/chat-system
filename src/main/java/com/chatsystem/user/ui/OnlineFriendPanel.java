@@ -39,6 +39,10 @@ public class OnlineFriendPanel extends BaseTablePanel {
         setColumnWidth(COL_FULLNAME, 280);
 
         loadMockData();
+
+        // Mở dialog tạo nhóm (Phiên bản 1: chỉ để xem giao diện)
+        createGroupButton.addActionListener(e ->
+                new CreateGroupDialog(SwingUtilities.getWindowAncestor(this)).setVisible(true));
     }
 
     /** Thêm 1 người bạn đang online. */

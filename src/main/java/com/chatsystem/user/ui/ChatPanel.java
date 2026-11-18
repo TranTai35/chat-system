@@ -102,6 +102,21 @@ public class ChatPanel extends JPanel {
         searchButton.addActionListener(e -> setSearchVisible(!searchBar.isVisible()));
         closeSearchButton.addActionListener(e -> setSearchVisible(false));
         moreButton.addActionListener(e -> moreMenu.show(moreButton, 0, moreButton.getHeight()));
+
+        // Mở các dialog (Phiên bản 1: chỉ để xem giao diện, các nút trong dialog chưa xử lý)
+        createGroupButton.addActionListener(e -> new CreateGroupDialog(owner()).setVisible(true));
+        manageGroupItem.addActionListener(e -> {
+            Conversation c = conversationList.getSelectedValue();
+            if (c != null) {
+                new ManageGroupDialog(owner(), c.name()).setVisible(true);
+            }
+        });
+        reportSpamItem.addActionListener(e -> {
+            Conversation c = conversationList.getSelectedValue();
+            if (c != null) {
+                new ReportSpamDialog(owner(), mockUsername(c.name()), c.name()).setVisible(true);
+            }
+        });
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { applySearch(); }
             public void removeUpdate(DocumentEvent e) { applySearch(); }
@@ -347,6 +362,21 @@ public class ChatPanel extends JPanel {
             row.add(item, c);
         }
         return row;
+    }
+
+    /** Cửa sổ chứa khung chat, làm chủ cho các dialog. */
+    private Window owner() {
+        return SwingUtilities.getWindowAncestor(this);
+    }
+
+    /** Tên đăng nhập giả ứng với họ tên trong dữ liệu mock (Phiên bản 2 lấy từ CSDL). */
+    private static String mockUsername(String fullName) {
+        switch (fullName) {
+            case "Phạm Thị Lan": return "lanpt";
+            case "Trần Phước Tài": return "taitp";
+            case "Lê Quang Minh": return "minhlq";
+            default: return fullName;
+        }
     }
 
     // ================= Getter để gắn sự kiện ở Phiên bản 2 =================
