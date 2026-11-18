@@ -23,10 +23,10 @@ public class UserMainFrame extends JFrame {
 
         SidebarMenu menu = new SidebarMenu("Chat System");
 
-        menu.addItem("Tin nhắn", new PlaceholderPanel("Tin nhắn (danh sách hội thoại + khung chat)", "Nhân"));
+        menu.addItem("Tin nhắn", new ChatPanel());
         menu.addItem("Bạn bè", new FriendListPanel());
         menu.addItem("Lời mời kết bạn", new FriendRequestPanel());
-        menu.addItem("Bạn bè đang online", new PlaceholderPanel("Bạn bè đang online", "Nhân"));
+        menu.addItem("Bạn bè đang online", new OnlineFriendPanel());
         menu.addItem("Tìm người", new FindPeoplePanel());
         menu.addItem("Tìm trong tin nhắn", new PlaceholderPanel("Tìm kiếm trong toàn bộ tin nhắn", "Nhân"));
 

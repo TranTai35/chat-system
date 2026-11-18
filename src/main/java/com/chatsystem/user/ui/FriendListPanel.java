@@ -1,12 +1,9 @@
 package com.chatsystem.user.ui;
 
 import com.chatsystem.common.ui.BaseTablePanel;
-import com.chatsystem.common.ui.Theme;
 import com.chatsystem.common.ui.UiUtil;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
 
 /**
  * Người dùng. Danh sách bạn bè.
@@ -24,8 +21,8 @@ public class FriendListPanel extends BaseTablePanel {
     public static final int COL_FULLNAME = 2;
     public static final int COL_STATUS = 3;
 
-    public static final String ONLINE = "Online";
-    public static final String OFFLINE = "Offline";
+    public static final String ONLINE = StatusCellRenderer.ONLINE;
+    public static final String OFFLINE = StatusCellRenderer.OFFLINE;
 
     private final JComboBox<String> statusFilter;
     private final JButton chatButton;
@@ -50,12 +47,9 @@ public class FriendListPanel extends BaseTablePanel {
         blockButton = addAction(UiUtil.dangerButton("Chặn"));
 
         // ----- Cột trạng thái: chấm màu + chữ màu -----
-        StatusRenderer renderer = new StatusRenderer();
-        getTable().getColumnModel().getColumn(COL_DOT).setCellRenderer(renderer);
-        getTable().getColumnModel().getColumn(COL_STATUS).setCellRenderer(renderer);
+        StatusCellRenderer.installDotColumn(getTable(), COL_DOT);
+        getTable().getColumnModel().getColumn(COL_STATUS).setCellRenderer(StatusCellRenderer.text());
 
-        setColumnWidth(COL_DOT, 40);
-        getTable().getColumnModel().getColumn(COL_DOT).setMaxWidth(48);   // cột chấm không giãn theo cửa sổ
         setColumnWidth(COL_USERNAME, 180);
         setColumnWidth(COL_FULLNAME, 280);
         setColumnWidth(COL_STATUS, 120);
@@ -65,7 +59,7 @@ public class FriendListPanel extends BaseTablePanel {
 
     /** Thêm 1 người bạn: cột chấm và cột trạng thái cùng lấy từ online. */
     public void addFriend(String username, String fullName, boolean online) {
-        String status = online ? ONLINE : OFFLINE;
+        String status = StatusCellRenderer.of(online);
         addRow(status, username, fullName, status);
     }
 
@@ -81,23 +75,4 @@ public class FriendListPanel extends BaseTablePanel {
     public JButton getChatButton() { return chatButton; }
     public JButton getUnfriendButton() { return unfriendButton; }
     public JButton getBlockButton() { return blockButton; }
-
-    /**
-     * Cột chấm: hiện "●" xanh (online) / xám (offline).
-     * Cột trạng thái: chữ "Online" / "Offline" cùng màu.
-     */
-    private static class StatusRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean selected,
-                                                       boolean focused, int row, int column) {
-            boolean online = ONLINE.equals(value);
-            boolean dotColumn = table.convertColumnIndexToModel(column) == COL_DOT;
-            super.getTableCellRendererComponent(table, dotColumn ? "●" : value, selected, focused, row, column);
-            setHorizontalAlignment(dotColumn ? CENTER : LEFT);
-            if (!selected) {
-                setForeground(online ? Theme.ONLINE : Theme.OFFLINE);
-            }
-            return this;
-        }
-    }
 }
