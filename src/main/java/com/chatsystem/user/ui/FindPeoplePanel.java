@@ -4,7 +4,6 @@ import com.chatsystem.common.ui.BaseTablePanel;
 import com.chatsystem.common.ui.UiUtil;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * User. Tìm người dùng khác theo tên đăng nhập hoặc họ tên (wireframe user/12-find-people).
