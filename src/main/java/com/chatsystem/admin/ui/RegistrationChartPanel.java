@@ -4,6 +4,12 @@ package com.chatsystem.admin.ui;
  * Admin 6. Biểu đồ số lượng người đăng ký mới theo năm.
  * Chọn năm, trục hoành là tháng, trục tung là số người đăng ký mới.
  * Phiên bản 1: chỉ giao diện + dữ liệu giả, chưa xử lý sự kiện.
+ *
+ * Đối chiếu CSDL (script/create_db.sql): đếm theo users.created_at.
+ * Phiên bản 2 dự kiến truy vấn (kết quả đổ vào setMonthlyData, tháng thiếu = 0):
+ *   SELECT MONTH(created_at) AS thang, COUNT(*) AS so_luong FROM users
+ *   WHERE role = 'USER' AND YEAR(created_at) = ?   -- năm chọn ở yearBox
+ *   GROUP BY MONTH(created_at);
  */
 public class RegistrationChartPanel extends YearChartPanel {
 
