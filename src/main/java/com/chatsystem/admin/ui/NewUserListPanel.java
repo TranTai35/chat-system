@@ -10,6 +10,13 @@ import javax.swing.*;
  * - Chọn khoảng thời gian (từ ngày - đến ngày)
  * - Sắp xếp theo tên / thời gian tạo, lọc theo tên
  * Phiên bản 1: chỉ giao diện + dữ liệu giả, chưa xử lý sự kiện.
+ *
+ * Đối chiếu CSDL (script/create_db.sql, bảng users): các cột lấy từ
+ * username, full_name, email, created_at (ngày đăng ký, có index idx_users_created_at).
+ * Phiên bản 2 dự kiến truy vấn:
+ *   SELECT username, full_name, email, created_at FROM users
+ *   WHERE role = 'USER' AND created_at BETWEEN ? AND ?   -- Từ, Đến
+ *   ORDER BY created_at DESC;
  */
 public class NewUserListPanel extends BaseTablePanel {
 
