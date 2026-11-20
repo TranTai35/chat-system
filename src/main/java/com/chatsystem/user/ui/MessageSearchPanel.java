@@ -30,6 +30,8 @@ public class MessageSearchPanel extends BaseTablePanel {
     public static final int COL_TIME = 3;
 
     private static final String ALL = "Tất cả hội thoại";
+    /** Số ký tự tối đa hiện ở cột nội dung; dài hơn thì cắt quanh từ khoá. */
+    private static final int SNIPPET_LENGTH = 60;
 
     private final JComboBox<String> scopeFilter;
     private final JButton openButton;
@@ -130,9 +132,21 @@ public class MessageSearchPanel extends BaseTablePanel {
                                                        boolean focused, int row, int column) {
             String text = value == null ? "" : value.toString();
             String keyword = getSearchField().getText().trim();
-            super.getTableCellRendererComponent(table, highlight(text, keyword), selected, focused, row, column);
-            setToolTipText(text);   // nội dung dài bị cắt thì rê chuột để xem đủ
+            super.getTableCellRendererComponent(table, highlight(snippet(text, keyword), keyword),
+                    selected, focused, row, column);
+            setToolTipText(text);   // rê chuột để xem đủ nội dung
             return this;
+        }
+
+        /** Tin dài: chỉ hiện đoạn quanh chỗ khớp đầu tiên, "…" ở chỗ bị cắt (giống wireframe). */
+        private String snippet(String text, String keyword) {
+            if (text.length() <= SNIPPET_LENGTH) {
+                return text;
+            }
+            int hit = keyword.isEmpty() ? -1 : text.toLowerCase(Locale.ROOT).indexOf(keyword.toLowerCase(Locale.ROOT));
+            int start = hit < 0 ? 0 : Math.max(0, hit - SNIPPET_LENGTH / 3);
+            int end = Math.min(text.length(), start + SNIPPET_LENGTH);
+            return (start > 0 ? "…" : "") + text.substring(start, end).trim() + (end < text.length() ? "…" : "");
         }
 
         private String highlight(String text, String keyword) {
