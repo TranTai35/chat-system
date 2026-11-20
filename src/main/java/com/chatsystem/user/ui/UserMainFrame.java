@@ -23,12 +23,15 @@ public class UserMainFrame extends JFrame {
 
         SidebarMenu menu = new SidebarMenu("Chat System");
 
-        menu.addItem("Tin nhắn", new ChatPanel());
+        ChatPanel chatPanel = new ChatPanel();
+        MessageSearchPanel messageSearchPanel = new MessageSearchPanel();
+
+        menu.addItem("Tin nhắn", chatPanel);
         menu.addItem("Bạn bè", new FriendListPanel());
         menu.addItem("Lời mời kết bạn", new FriendRequestPanel());
         menu.addItem("Bạn bè đang online", new OnlineFriendPanel());
         menu.addItem("Tìm người", new FindPeoplePanel());
-        menu.addItem("Tìm trong tin nhắn", new PlaceholderPanel("Tìm kiếm trong toàn bộ tin nhắn", "Nhân"));
+        menu.addItem("Tìm trong tin nhắn", messageSearchPanel);
 
         menu.addFooterItem("Tài khoản", new ProfilePanel());
         menu.addFooterItem("Đổi mật khẩu", new ChangePasswordPanel());
@@ -37,5 +40,11 @@ public class UserMainFrame extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         add(menu, BorderLayout.WEST);
         add(menu.getContentPanel(), BorderLayout.CENTER);
+
+        // Bấm 1 kết quả tìm kiếm -> chuyển sang "Tin nhắn", mở hội thoại và nhảy tới tin khớp từ khoá
+        messageSearchPanel.setOpenChatHandler((conversation, keyword) -> {
+            menu.show("Tin nhắn");
+            chatPanel.openConversation(conversation, keyword);
+        });
     }
 }
