@@ -282,12 +282,44 @@ public class ChatPanel extends JPanel {
         searchCountLabel.setText(query.isEmpty() ? "" : (total == 0 ? "0/0" : "1/" + total));
     }
 
+    /**
+     * Mở 1 hội thoại theo tên, bật thanh tìm với từ khoá và cuộn tới tin khớp đầu tiên.
+     * Dùng khi bấm 1 kết quả ở màn "Tìm trong tin nhắn".
+     */
+    public void openConversation(String name, String keyword) {
+        for (int i = 0; i < conversationModel.size(); i++) {
+            if (conversationModel.get(i).name().equals(name)) {
+                jumpToMatch = true;
+                searchField.setText(keyword == null ? "" : keyword);
+                searchBar.setVisible(true);
+                if (conversationList.getSelectedIndex() == i) {
+                    showConversation(conversationModel.get(i));
+                } else {
+                    conversationList.setSelectedIndex(i);   // gọi showConversation qua listener
+                }
+                conversationList.ensureIndexIsVisible(i);
+                return;
+            }
+        }
+    }
+
+    /** true: lần cuộn tới sẽ nhảy tới tin khớp từ khoá thay vì cuối cuộc chat. */
+    private boolean jumpToMatch;
+
     private void scrollToBottom() {
         SwingUtilities.invokeLater(() -> {
             messageList.revalidate();
             SwingUtilities.invokeLater(() -> {
-                JScrollBar bar = messageScroll.getVerticalScrollBar();
-                bar.setValue(bar.getMaximum());
+                Bubble target = jumpToMatch ? messageList.firstMatch() : null;
+                jumpToMatch = false;
+                if (target != null) {
+                    Rectangle r = SwingUtilities.convertRectangle(target.getParent(), target.getBounds(), messageList);
+                    r.grow(0, Theme.PADDING * 2);   // chừa chỗ cho tên người gửi và giờ
+                    messageList.scrollRectToVisible(r);
+                } else {
+                    JScrollBar bar = messageScroll.getVerticalScrollBar();
+                    bar.setValue(bar.getMaximum());
+                }
             });
         });
     }
@@ -297,6 +329,9 @@ public class ChatPanel extends JPanel {
     /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1 (người đang đăng nhập là Nhân). */
     private void loadMockData() {
         addConversation(Conversation.privateChat("Phạm Thị Lan", true, "Ok bạn, mai gửi nhé", "10:21"),
+                Message.day("2026-11-10"),
+                Message.other(null, "Phần kết nối CSDL bạn làm sao vậy?", "09:05"),
+                Message.mine("Để mình gửi code mẫu nhé, dùng JDBC với file cấu hình", "09:12"),
                 Message.day("Hôm qua"),
                 Message.other(null, "Nhân ơi, mai có học Java không?", "21:40"),
                 Message.mine("Có nha, 7h30 phòng E202", "21:42"),
@@ -525,10 +560,22 @@ public class ChatPanel extends JPanel {
         /** Tô chuỗi query trong mọi bong bóng, trả về tổng số chỗ khớp. */
         int highlight(String query) {
             int total = 0;
+            firstMatch = null;
             for (Bubble b : bubbles) {
-                total += b.highlight(query);
+                int n = b.highlight(query);
+                if (n > 0 && firstMatch == null) {
+                    firstMatch = b;
+                }
+                total += n;
             }
             return total;
+        }
+
+        private Bubble firstMatch;
+
+        /** Bong bóng đầu tiên có chỗ khớp ở lần tô gần nhất, null nếu không có. */
+        Bubble firstMatch() {
+            return firstMatch;
         }
 
         /** Bề ngang dành cho tin nhắn (trừ lề). */
