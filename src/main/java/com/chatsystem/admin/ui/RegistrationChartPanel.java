@@ -18,8 +18,8 @@ public class RegistrationChartPanel extends YearChartPanel {
         loadMockData();
     }
 
-    /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1 (năm 2026, tới tháng 11). */
+    /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1 (năm 2026, tới tháng 11, khớp script/sample_data.sql). */
     private void loadMockData() {
-        setMonthlyData(2026, new int[]{4, 6, 3, 8, 5, 7, 9, 12, 18, 14, 11, 0});
+        setMonthlyData(2026, new int[]{1, 1, 1, 1, 1, 1, 1, 1, 5, 4, 3, 0});
     }
 }

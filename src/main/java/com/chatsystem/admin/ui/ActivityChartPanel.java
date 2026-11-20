@@ -19,8 +19,8 @@ public class ActivityChartPanel extends YearChartPanel {
         loadMockData();
     }
 
-    /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1 (năm 2026, tới tháng 11). */
+    /** Dữ liệu giả để chụp hình báo cáo Phiên bản 1 (năm 2026, tới tháng 11, khớp script/sample_data.sql). */
     private void loadMockData() {
-        setMonthlyData(2026, new int[]{15, 18, 17, 22, 20, 19, 16, 24, 38, 45, 52, 0});
+        setMonthlyData(2026, new int[]{1, 3, 4, 4, 5, 7, 7, 8, 14, 17, 19, 0});
     }
 }
