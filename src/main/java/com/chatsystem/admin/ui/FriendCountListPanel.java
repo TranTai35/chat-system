@@ -11,6 +11,18 @@ import javax.swing.*;
  * - Sắp xếp theo tên / thời gian tạo
  * - Lọc theo tên, lọc theo số bạn trực tiếp (=, <, > một số nhập vào)
  * Phiên bản 1: chỉ giao diện + dữ liệu giả, chưa xử lý sự kiện.
+ *
+ * Đối chiếu CSDL (script/create_db.sql): mỗi cặp bạn lưu 2 dòng trong friendships
+ * (user_id, friend_id), nên truy vấn Phiên bản 2 dự kiến:
+ * - Số bạn trực tiếp: SELECT COUNT(*) FROM friendships WHERE user_id = ?
+ * - Số bạn gồm bạn của bạn: đếm DISTINCT tập {bạn trực tiếp} ∪ {friend_id của các bạn đó},
+ *   bỏ chính người đó:
+ *   SELECT COUNT(DISTINCT x.id) FROM (
+ *     SELECT f1.friend_id AS id FROM friendships f1 WHERE f1.user_id = ?
+ *     UNION
+ *     SELECT f2.friend_id FROM friendships f1 JOIN friendships f2 ON f2.user_id = f1.friend_id
+ *     WHERE f1.user_id = ?) x WHERE x.id <> ?
+ * - Bộ lọc =, <, > áp lên cột "Số bạn trực tiếp".
  */
 public class FriendCountListPanel extends BaseTablePanel {
 
