@@ -11,6 +11,14 @@ import javax.swing.*;
  * - Sắp xếp theo tên / thời gian tạo
  * - Lọc theo tên, lọc theo số lượng hoạt động (=, <, > một số nhập vào)
  * Phiên bản 1: chỉ giao diện + dữ liệu giả, chưa xử lý sự kiện.
+ *
+ * Đối chiếu CSDL (script/create_db.sql), trong khoảng [Từ, Đến]:
+ * - Mở ứng dụng: COUNT(*) FROM app_sessions WHERE user_id = ? AND opened_at BETWEEN ? AND ?
+ * - Số người đã chat: COUNT(DISTINCT thành viên còn lại) của các conversations type PRIVATE
+ *   mà user có messages (sender_id = ?, sent_at trong khoảng)
+ * - Số nhóm đã chat: COUNT(DISTINCT m.conversation_id) với conversations type GROUP,
+ *   m.sender_id = ?, m.sent_at trong khoảng
+ * - Bộ lọc =, <, > áp lên cột "Mở ứng dụng".
  */
 public class ActiveUserListPanel extends BaseTablePanel {
 
@@ -37,7 +45,7 @@ public class ActiveUserListPanel extends BaseTablePanel {
         fromField = addFilter("Từ:", UiUtil.textField("yyyy-MM-dd", 10));
         toField = addFilter("Đến:", UiUtil.textField("yyyy-MM-dd", 10));
         fromField.setText("2026-11-01");
-        toField.setText("2026-11-17");
+        toField.setText("2026-11-20");
         operatorBox = addFilter("Số hoạt động:", new JComboBox<>(new String[]{"=", "<", ">"}));
         countField = addFilter(null, UiUtil.textField("Số", 5));
 
