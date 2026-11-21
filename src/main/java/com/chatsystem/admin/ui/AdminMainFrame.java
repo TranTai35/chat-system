@@ -24,7 +24,7 @@ public class AdminMainFrame extends JFrame {
 
         menu.addSection("Người dùng");
         menu.addItem("Quản lý người dùng", new UserManagementPanel());                         // Tài
-        menu.addItem("Lịch sử đăng nhập", new LoginListPanel());  // Khang
+        menu.addItem("Danh sách đăng nhập", new LoginListPanel());  // Khang
         menu.addItem("Người dùng mới", new NewUserListPanel());  // Khang
         menu.addItem("Số lượng bạn bè", new FriendCountListPanel());  // Khang
         menu.addItem("Người dùng hoạt động", new ActiveUserListPanel());  // Khang
