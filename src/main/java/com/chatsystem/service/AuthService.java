@@ -1,7 +1,9 @@
 package com.chatsystem.service;
 
 import com.chatsystem.common.PasswordUtil;
+import com.chatsystem.common.db.Db;
 import com.chatsystem.common.db.DbException;
+import com.chatsystem.dao.LoginDao;
 import com.chatsystem.dao.UserDao;
 import com.chatsystem.model.User;
 
@@ -24,8 +26,8 @@ import java.util.regex.Pattern;
  * <pre>{@code
  * Async.run(() -> authService.login(user, pass, User.Role.USER), u -> openMainFrame(u));
  * }</pre>
- * Đợt 1 sẽ bổ sung vào {@code login}: ghi {@code login_history}, mở {@code app_sessions}, cập nhật
- * {@code is_online} / {@code last_seen}.
+ * {@code login} (phân hệ người dùng) còn ghi {@code login_history}, mở {@code app_sessions} và bật
+ * {@code is_online}; {@code logout} làm ngược lại.
  */
 public class AuthService {
 
@@ -35,13 +37,19 @@ public class AuthService {
     private static final Pattern EMAIL = Pattern.compile("[^@\\s]+@[^@\\s]+\\.[^@\\s]+");
 
     private final UserDao userDao;
+    private final LoginDao loginDao;
 
     public AuthService() {
-        this(new UserDao());
+        this(new UserDao(), new LoginDao());
     }
 
     public AuthService(UserDao userDao) {
+        this(userDao, new LoginDao());
+    }
+
+    public AuthService(UserDao userDao, LoginDao loginDao) {
         this.userDao = userDao;
+        this.loginDao = loginDao;
     }
 
     /**
@@ -116,7 +124,30 @@ public class AuthService {
                     ? "Tài khoản này không có quyền quản trị."
                     : "Tài khoản quản trị chỉ đăng nhập ở phân hệ quản trị.");
         }
+        if (requiredRole == User.Role.USER) {
+            recordLogin(u.getId());
+        }
         return u;
+    }
+
+    /** Ghi lịch sử đăng nhập, mở lượt dùng ứng dụng và đặt trạng thái online, cùng một giao dịch. */
+    private void recordLogin(int userId) {
+        Db.transaction(c -> {
+            loginDao.closeOpenSessions(c, userId);   // lần trước tắt đột ngột thì đóng nốt
+            loginDao.insertLoginHistory(c, userId);
+            loginDao.openSession(c, userId);
+            loginDao.setOnline(c, userId, true);
+            return null;
+        });
+    }
+
+    /** Đăng xuất hoặc đóng ứng dụng: đóng lượt dùng ứng dụng và đặt offline. */
+    public void logout(int userId) {
+        Db.transaction(c -> {
+            loginDao.closeOpenSessions(c, userId);
+            loginDao.setOnline(c, userId, false);
+            return null;
+        });
     }
 
     /**
