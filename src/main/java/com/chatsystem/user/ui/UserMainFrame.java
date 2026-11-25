@@ -1,11 +1,15 @@
 package com.chatsystem.user.ui;
 
-import com.chatsystem.common.ui.PlaceholderPanel;
+import com.chatsystem.common.Session;
+import com.chatsystem.common.ui.Async;
 import com.chatsystem.common.ui.SidebarMenu;
 import com.chatsystem.common.ui.Theme;
+import com.chatsystem.service.AuthService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Cửa sổ chính phân hệ người dùng (sau khi đăng nhập): menu bên trái, nội dung bên phải.
@@ -14,9 +18,11 @@ import java.awt.*;
  */
 public class UserMainFrame extends JFrame {
 
+    private final AuthService authService = new AuthService();
+
     public UserMainFrame() {
         super("Chat System");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);   // tự xử lý ở dưới: ghi đăng xuất rồi mới thoát
         setSize(Theme.MAIN_WINDOW);
         setMinimumSize(new Dimension(960, 600));
         setLocationRelativeTo(null);
@@ -35,16 +41,51 @@ public class UserMainFrame extends JFrame {
 
         menu.addFooterItem("Tài khoản", new ProfilePanel());
         menu.addFooterItem("Đổi mật khẩu", new ChangePasswordPanel());
-        menu.addFooterItem("Đăng xuất", new PlaceholderPanel("Đăng xuất", "Tài"));
+        menu.addFooterItem("Đăng xuất", new LogoutPanel(this::logout));
 
         getContentPane().setLayout(new BorderLayout());
         add(menu, BorderLayout.WEST);
         add(menu.getContentPanel(), BorderLayout.CENTER);
 
+        // Đóng cửa sổ = đăng xuất: ghi lại để bạn bè thấy mình offline
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                endSession(() -> System.exit(0));
+            }
+        });
+
         // Bấm 1 kết quả tìm kiếm -> chuyển sang "Tin nhắn", mở hội thoại và nhảy tới tin khớp từ khoá
         messageSearchPanel.setOpenChatHandler((conversation, keyword) -> {
             menu.show("Tin nhắn");
             chatPanel.openConversation(conversation, keyword);
+        });
+    }
+
+    /** Đăng xuất: ghi vào CSDL, xoá phiên rồi quay về màn đăng nhập. */
+    private void logout() {
+        endSession(() -> {
+            new LoginFrame().setVisible(true);
+            dispose();
+        });
+    }
+
+    /** Ghi đăng xuất vào CSDL (trong luồng nền), xong thì chạy {@code then}. Lỗi mạng/CSDL không chặn việc thoát. */
+    private void endSession(Runnable then) {
+        if (!Session.isLoggedIn()) {
+            then.run();
+            return;
+        }
+        int userId = Session.currentUserId();
+        Async.run(() -> {
+            authService.logout(userId);
+            return null;
+        }, ok -> {
+            Session.end();
+            then.run();
+        }, error -> {
+            Session.end();
+            then.run();
         });
     }
 }
