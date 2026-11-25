@@ -21,3 +21,6 @@ desktop.ini
 
 # Cấu hình chứa mật khẩu CSDL trên máy từng người
 config.local.properties
+
+# File jar tạo bởi mvn package (nộp bài thì copy riêng, không đưa lên GitHub)
+release/*.jar

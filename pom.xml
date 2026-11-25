@@ -49,6 +49,65 @@
                     <mainClass>com.chatsystem.user.UserApp</mainClass>
                 </configuration>
             </plugin>
+
+            <!-- Đóng gói bản nộp: mvn clean package
+                 -> release/chat-user.jar, release/chat-admin.jar (chạy được độc lập) và release/config.properties -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <executions>
+                    <execution>
+                        <id>jar-user</id>
+                        <phase>package</phase>
+                        <goals><goal>single</goal></goals>
+                        <configuration>
+                            <finalName>chat-user</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>${project.basedir}/release</outputDirectory>
+                            <descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>
+                            <archive>
+                                <manifest><mainClass>com.chatsystem.user.UserApp</mainClass></manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jar-admin</id>
+                        <phase>package</phase>
+                        <goals><goal>single</goal></goals>
+                        <configuration>
+                            <finalName>chat-admin</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>${project.basedir}/release</outputDirectory>
+                            <descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>
+                            <archive>
+                                <manifest><mainClass>com.chatsystem.admin.AdminApp</mainClass></manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-config-to-release</id>
+                        <phase>package</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/release</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <includes><include>config.properties</include></includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
