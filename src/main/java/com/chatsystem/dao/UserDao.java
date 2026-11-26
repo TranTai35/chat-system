@@ -48,6 +48,15 @@ public class UserDao {
                 ps -> ps.setString(1, email), rs -> 1).isPresent();
     }
 
+    /** Có tài khoản <b>khác</b> {@code userId} đang dùng email này không (dùng khi người dùng đổi email). */
+    public boolean existsByEmailOtherThan(String email, int userId) {
+        return Db.queryOne("SELECT 1 FROM users WHERE email = ? AND id <> ?",
+                ps -> {
+                    ps.setString(1, email);
+                    ps.setInt(2, userId);
+                }, rs -> 1).isPresent();
+    }
+
     /** Tất cả tài khoản, mới đăng ký xếp trước. */
     public List<User> findAll() {
         return Db.query("SELECT " + COLUMNS + " FROM users ORDER BY created_at DESC, id DESC",
@@ -74,6 +83,23 @@ public class UserDao {
                     ps.setString(8, u.getRole().name());
                 });
         return (int) id;
+    }
+
+    /**
+     * Cập nhật thông tin cá nhân: họ tên, địa chỉ, ngày sinh, giới tính, email.
+     * Không đụng tên đăng nhập, mật khẩu, quyền. Trùng email thì ném {@code DbException}
+     * có {@code isDuplicateKey() == true}.
+     */
+    public boolean updateProfile(User u) {
+        return Db.update("UPDATE users SET full_name = ?, address = ?, dob = ?, gender = ?, email = ? WHERE id = ?",
+                ps -> {
+                    ps.setString(1, u.getFullName());
+                    ps.setString(2, u.getAddress());
+                    ps.setDate(3, u.getDob() == null ? null : Date.valueOf(u.getDob()));
+                    ps.setString(4, u.getGender() == null ? null : u.getGender().name());
+                    ps.setString(5, u.getEmail());
+                    ps.setInt(6, u.getId());
+                }) > 0;
     }
 
     /** Đổi mật khẩu (đã băm). Trả về true nếu có tài khoản được cập nhật. */

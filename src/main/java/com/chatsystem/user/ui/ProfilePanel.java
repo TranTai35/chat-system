@@ -1,20 +1,29 @@
 package com.chatsystem.user.ui;
 
+import com.chatsystem.common.Session;
+import com.chatsystem.common.ui.Async;
 import com.chatsystem.common.ui.FormPanel;
 import com.chatsystem.common.ui.Theme;
 import com.chatsystem.common.ui.UiUtil;
+import com.chatsystem.model.User;
+import com.chatsystem.service.ServiceException;
+import com.chatsystem.service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /**
  * User 4. Thông tin tài khoản (wireframe user/07-profile).
  * Tên đăng nhập không sửa được; các trường còn lại chỉnh rồi bấm "Lưu".
- * Phiên bản 1: chỉ giao diện, điền sẵn dữ liệu mẫu, chưa xử lý sự kiện.
+ * Điền từ người đang đăng nhập ({@link Session}); "Lưu" ghi vào CSDL qua {@link UserService}.
  */
 public class ProfilePanel extends JPanel {
 
     private static final int FORM_WIDTH = 520;
+
+    private final UserService userService = new UserService();
 
     private final JTextField usernameField;
     private final JTextField fullNameField;
@@ -40,7 +49,8 @@ public class ProfilePanel extends JPanel {
         form.addButtons(saveButton);
 
         usernameField.setEnabled(false);   // tên đăng nhập không sửa
-        loadMockData();
+        loadFromSession();
+        saveButton.addActionListener(e -> save());
 
         JPanel left = new JPanel(new BorderLayout(0, Theme.PADDING));
         left.setOpaque(false);
@@ -58,13 +68,65 @@ public class ProfilePanel extends JPanel {
         add(top, BorderLayout.NORTH);
     }
 
-    private void loadMockData() {
-        usernameField.setText("khangndh");
-        fullNameField.setText("Nguyễn Đặng Hoàng Khang");
-        addressField.setText("12 Lê Lợi, Q1");
-        dobField.setText("2005-03-14");
-        genderBox.setSelectedItem("Nam");
-        emailField.setText("khang@example.com");
+    /** Điền các ô từ người đang đăng nhập. Chưa đăng nhập (ví dụ chạy xem thử riêng màn này) thì để trống. */
+    private void loadFromSession() {
+        User u = Session.currentUser();
+        if (u == null) {
+            saveButton.setEnabled(false);
+            return;
+        }
+        usernameField.setText(u.getUsername());
+        fullNameField.setText(u.getFullName());
+        addressField.setText(u.getAddress() == null ? "" : u.getAddress());
+        dobField.setText(u.getDob() == null ? "" : u.getDob().toString());
+        genderBox.setSelectedIndex(u.getGender() == User.Gender.FEMALE ? 1
+                : u.getGender() == User.Gender.OTHER ? 2 : 0);
+        emailField.setText(u.getEmail());
+    }
+
+    private void save() {
+        LocalDate dob = null;
+        String dobText = dobField.getText().trim();
+        if (!dobText.isEmpty()) {
+            try {
+                dob = LocalDate.parse(dobText);
+            } catch (DateTimeParseException ex) {
+                warn("Ngày sinh phải có dạng yyyy-MM-dd, ví dụ 2005-03-14.");
+                return;
+            }
+        }
+        User.Gender gender = switch (genderBox.getSelectedIndex()) {
+            case 0 -> User.Gender.MALE;
+            case 1 -> User.Gender.FEMALE;
+            default -> User.Gender.OTHER;
+        };
+        int userId = Session.currentUserId();
+        String fullName = fullNameField.getText();
+        String address = addressField.getText();
+        String email = emailField.getText();
+        LocalDate finalDob = dob;
+
+        saveButton.setEnabled(false);
+        Async.run(() -> userService.updateProfile(userId, fullName, address, finalDob, gender, email),
+                updated -> {
+                    saveButton.setEnabled(true);
+                    Session.start(updated);   // các màn khác thấy thông tin mới
+                    loadFromSession();
+                    JOptionPane.showMessageDialog(this, "Đã lưu thông tin tài khoản.",
+                            "Tài khoản", JOptionPane.INFORMATION_MESSAGE);
+                },
+                error -> {
+                    saveButton.setEnabled(true);
+                    if (error instanceof ServiceException) {
+                        warn(error.getMessage());
+                    } else {
+                        Async.showError(error);
+                    }
+                });
+    }
+
+    private void warn(String message) {
+        JOptionPane.showMessageDialog(this, message, "Không thể lưu", JOptionPane.WARNING_MESSAGE);
     }
 
     // Getter để gắn sự kiện ở Phiên bản 2
