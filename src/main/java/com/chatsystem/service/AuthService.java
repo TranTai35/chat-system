@@ -74,6 +74,9 @@ public class AuthService {
         if (!EMAIL.matcher(email).matches()) {
             throw new ServiceException("Email không hợp lệ.");
         }
+        if (fullName.length() > 100 || email.length() > 100 || trim(address).length() > 255) {
+            throw new ServiceException("Họ tên và email tối đa 100 ký tự, địa chỉ tối đa 255 ký tự.");
+        }
         if (dob != null && dob.isAfter(LocalDate.now())) {
             throw new ServiceException("Ngày sinh không được ở tương lai.");
         }
