@@ -95,3 +95,27 @@ Mẫu: `service/AuthService` (kèm chú thích cách viết), `dao/UserDao`. M�
 - Cột `id` mới thêm hoặc thêm bảng thì nói với Nhân để cập nhật `create_db.sql` và ERD.
 
 **Đóng gói bản nộp:** `mvn clean package` tạo `release/chat-user.jar`, `release/chat-admin.jar` và chép `config.properties` vào `release/`. Chạy: `java -jar release/chat-user.jar` (cần `config.properties` cạnh file jar). Các file `.jar` không đưa lên GitHub.
+
+### Dùng chung: người đang đăng nhập và trạng thái online
+
+**Ai đang đăng nhập:** gọi `Session.currentUser()` (trả về `User`, hoặc `null` nếu chưa đăng nhập) hoặc `Session.currentUserId()`. Không tự lưu người dùng hiện tại ở màn hình của mình. Sau khi cập nhật thông tin tài khoản, `Session` được làm mới nên các màn khác thấy dữ liệu mới.
+
+**Ai đang online:** một người online khi `is_online = 1` **và** `last_seen` trong 3 phút gần nhất. Ứng dụng người dùng gửi tín hiệu `last_seen` khi đăng nhập và mỗi 30 giây, nên ứng dụng bị tắt ngang thì sau 3 phút người đó tự thành offline. Vì vậy **không đọc trực tiếp cột `is_online`**, mà dùng một trong ba cách:
+
+| Trường hợp | Cách dùng |
+| --- | --- |
+| Kiểm tra 1 người | `userDao.isOnline(userId)` (gọi trong service) |
+| Đã có đối tượng `User` đọc từ `UserDao` | `user.isOnline()` (đã tính theo `last_seen` lúc truy vấn) |
+| Viết câu SQL có bảng `users` | chèn `UserDao.onlineSql("u")`, với `u` là bí danh của bảng `users` |
+
+Ví dụ trong DAO bạn bè:
+
+```java
+String sql = "SELECT u.id, u.username, u.full_name, " + UserDao.onlineSql("u") + " AS online "
+        + "FROM friendships f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ?";
+// Danh sách bạn đang online: thêm  " AND " + UserDao.onlineSql("u")  vào WHERE
+```
+
+Đọc kết quả bằng `rs.getBoolean("online")`. Thời gian chờ 3 phút nằm ở `UserDao.ONLINE_TIMEOUT_MINUTES`, chu kỳ 30 giây ở `AuthService.HEARTBEAT_SECONDS`; muốn đổi thì chỉ sửa ở đó.
+
+Màn hình hiển thị trạng thái online (danh sách bạn bè, bạn đang online, Quản lý người dùng) nên tải lại định kỳ hoặc khi mở màn, vì trạng thái có thể đổi sau khi đã tải.

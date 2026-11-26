@@ -26,12 +26,15 @@ import java.util.regex.Pattern;
  * <pre>{@code
  * Async.run(() -> authService.login(user, pass, User.Role.USER), u -> openMainFrame(u));
  * }</pre>
- * {@code login} (phân hệ người dùng) còn ghi {@code login_history}, mở {@code app_sessions} và bật
- * {@code is_online}; {@code logout} làm ngược lại.
+ * {@code login} (phân hệ người dùng) còn ghi {@code login_history}, mở {@code app_sessions}, bật
+ * {@code is_online} và ghi {@code last_seen}; {@code heartbeat} gọi mỗi 30 giây; {@code logout} làm ngược lại.
  */
 public class AuthService {
 
     public static final int MIN_PASSWORD_LENGTH = 6;
+
+    /** Chu kỳ gửi tín hiệu "còn sống". Phải nhỏ hơn nhiều so với UserDao.ONLINE_TIMEOUT_MINUTES (3 phút). */
+    public static final int HEARTBEAT_SECONDS = 30;
 
     private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9_.]{3,50}");
     private static final Pattern EMAIL = Pattern.compile("[^@\\s]+@[^@\\s]+\\.[^@\\s]+");
@@ -136,12 +139,21 @@ public class AuthService {
     /** Ghi lịch sử đăng nhập, mở lượt dùng ứng dụng và đặt trạng thái online, cùng một giao dịch. */
     private void recordLogin(int userId) {
         Db.transaction(c -> {
-            loginDao.closeOpenSessions(c, userId);   // lần trước tắt đột ngột thì đóng nốt
+            loginDao.closeStaleSessions(c, userId);  // lần trước tắt ngang: đóng tại last_seen cũ (trước khi ghi đè)
             loginDao.insertLoginHistory(c, userId);
             loginDao.openSession(c, userId);
             loginDao.setOnline(c, userId, true);
             return null;
         });
+    }
+
+    /**
+     * Tín hiệu "còn sống" (gọi mỗi {@value #HEARTBEAT_SECONDS} giây khi ứng dụng đang mở).
+     *
+     * @return false nếu tài khoản không còn ở trạng thái đăng nhập
+     */
+    public boolean heartbeat(int userId) {
+        return loginDao.touchLastSeen(userId);
     }
 
     /** Đăng xuất hoặc đóng ứng dụng: đóng lượt dùng ứng dụng và đặt offline. */
