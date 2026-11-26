@@ -328,3 +328,23 @@ SELECT s.user_id, s.opened_at,
  ORDER BY s.opened_at;
 
 DROP TEMPORARY TABLE tmp_sessions;
+
+-- ---------------------------------------------------------------------
+-- 7. Tín hiệu "còn sống" (users.last_seen)
+-- Online khi is_online = 1 AND last_seen >= NOW() - INTERVAL 3 MINUTE.
+-- ---------------------------------------------------------------------
+-- Offline: lần cuối thấy là lúc đóng lượt mở ứng dụng gần nhất (admin: lần đăng nhập gần nhất)
+UPDATE users u
+   SET last_seen = (SELECT MAX(h.login_at) FROM login_history h WHERE h.user_id = u.id);
+UPDATE users u
+   SET last_seen = GREATEST(last_seen, (SELECT MAX(s.closed_at) FROM app_sessions s WHERE s.user_id = u.id))
+ WHERE EXISTS (SELECT 1 FROM app_sessions s WHERE s.user_id = u.id AND s.closed_at IS NOT NULL);
+
+-- Online: đang mở ứng dụng nên last_seen là lúc chạy script. Nếu không có ứng dụng thật
+-- gửi tín hiệu thì sau 3 phút những người này thành offline, đúng như khi ứng dụng bị tắt ngang.
+-- Muốn demo ai online thì đăng nhập bằng tài khoản đó.
+UPDATE users SET last_seen = NOW(3) WHERE is_online = TRUE AND id <> 10;
+
+-- ducnm: ứng dụng bị tắt ngang lúc 09:45 ngày 20/11 (is_online vẫn TRUE, lượt mở ứng dụng chưa đóng)
+-- nhưng không còn tín hiệu nên tính là offline. Đăng nhập lại thì đóng lượt cũ tại last_seen.
+UPDATE users SET last_seen = '2026-11-20 09:45:00.000' WHERE id = 10;

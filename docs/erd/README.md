@@ -17,7 +17,7 @@ Schema thiết kế cho cả **Phiên bản 2** (mã hoá nhóm, thống kê, xo
 
 | # | Bảng | Lưu gì | Dùng cho màn hình |
 | --- | --- | --- | --- |
-| 1 | `users` | Tài khoản (cả user và admin): tên đăng nhập, mật khẩu đã băm, họ tên, địa chỉ, ngày sinh, giới tính, email, vai trò, trạng thái khoá, online, ngày đăng ký, cặp khoá mã hoá | Đăng ký, đăng nhập, tài khoản, Quản lý user, DS đăng ký mới, biểu đồ đăng ký |
+| 1 | `users` | Tài khoản (cả user và admin): tên đăng nhập, mật khẩu đã băm, họ tên, địa chỉ, ngày sinh, giới tính, email, vai trò, trạng thái khoá, online (`is_online` + `last_seen`), ngày đăng ký, cặp khoá mã hoá | Đăng ký, đăng nhập, tài khoản, Quản lý user, DS đăng ký mới, biểu đồ đăng ký |
 | 2 | `login_history` | Mỗi lần đăng nhập thành công | Lịch sử đăng nhập của 1 user, DS đăng nhập (admin) |
 | 3 | `app_sessions` | Mỗi lần mở ứng dụng (mở, đóng) | DS user hoạt động, biểu đồ số người hoạt động |
 | 4 | `friendships` | Quan hệ bạn bè, **mỗi quan hệ 2 dòng** (A,B) và (B,A) | DS bạn bè, bạn online, DS user + số bạn bè |
@@ -34,6 +34,7 @@ Schema thiết kế cho cả **Phiên bản 2** (mã hoá nhóm, thống kê, xo
 ## Các quyết định thiết kế
 
 - **Bạn bè lưu 2 chiều.** Kết bạn thì thêm 2 dòng, huỷ thì xoá 2 dòng (trong 1 transaction). Truy vấn "bạn của A" chỉ cần `WHERE user_id = A`, và đếm bạn của bạn bằng 1 phép JOIN.
+- **Online tính bằng tín hiệu "còn sống".** `is_online` đặt `TRUE` khi đăng nhập, `FALSE` khi đăng xuất. Nếu ứng dụng bị tắt ngang (tắt máy, mất mạng) thì `is_online` vẫn là `TRUE`, nên ứng dụng cập nhật thêm `last_seen = NOW(3)` khi đăng nhập và mỗi 30 giây. Một người online khi `is_online = 1 AND last_seen >= NOW() - INTERVAL 3 MINUTE`; mọi màn có trạng thái online gọi chung 1 hàm trong DAO. Khi đăng nhập lại, các lượt `app_sessions` cũ còn mở được đóng tại `last_seen` cũ để thống kê hoạt động không sai.
 - **Lời mời chỉ lưu khi đang chờ.** Đồng ý thì thêm vào `friendships` rồi xoá lời mời, từ chối thì xoá lời mời.
 - **Chat riêng và chat nhóm dùng chung** `conversations` + `messages`, phân biệt bằng `type`. Khung chat chỉ cần 1 màn hình.
 - **Mỗi 2 người chỉ có 1 cuộc chat riêng.** Chat riêng có `private_key = "<id nhỏ>_<id lớn>"` (vd user 7 và 3 -> `"3_7"`), cột này `UNIQUE` nên không thể tạo trùng, kể cả khi 2 người cùng bấm chat một lúc. Nhóm có `private_key = NULL` (MySQL cho phép nhiều NULL trong cột UNIQUE). Một `CHECK` đảm bảo chat riêng luôn có `private_key`, nhóm thì không. Tìm hoặc tạo chat riêng: `INSERT ... ON DUPLICATE KEY UPDATE` hoặc `SELECT ... WHERE private_key = '3_7'`.
@@ -108,7 +109,7 @@ Mỗi chức năng trong đề bài lấy dữ liệu từ bảng nào. "Java" n
 | Yêu cầu | Bảng / cột |
 | --- | --- |
 | Quản lý user: tên đăng nhập, họ tên, địa chỉ, ngày sinh, giới tính, email | `users` |
-| Lọc theo tên / tên đăng nhập / trạng thái, sắp xếp theo tên / ngày tạo | `users.full_name`, `username`, `is_locked` (hoặc `is_online`), `created_at` |
+| Lọc theo tên / tên đăng nhập / trạng thái, sắp xếp theo tên / ngày tạo | `users.full_name`, `username`, `is_locked` (hoặc trạng thái online), `created_at` |
 | Thêm / cập nhật / xoá, khoá / mở khoá, cập nhật mật khẩu | `users` (xoá thì CASCADE), `is_locked`, `password_hash` |
 | Xem lịch sử đăng nhập, danh sách bạn bè của 1 user | `login_history`, `friendships` |
 | DS đăng nhập theo thời gian (thời gian, tên đăng nhập, họ tên) | `login_history` JOIN `users` |
@@ -125,11 +126,11 @@ Mỗi chức năng trong đề bài lấy dữ liệu từ bảng nào. "Java" n
 | --- | --- |
 | Đăng ký, cập nhật thông tin, đổi mật khẩu, đăng nhập | `users`, `login_history`, `app_sessions` |
 | Khởi tạo lại mật khẩu (random, gửi email) | `users.email`, `password_hash` + Java gửi mail |
-| DS bạn bè, lọc tên, online / offline | `friendships` JOIN `users.is_online` |
+| DS bạn bè, lọc tên, online / offline | `friendships` JOIN `users` (`is_online` + `last_seen`) |
 | Tìm theo tên và gửi lời mời; huỷ kết bạn | `users`, `friend_requests`, `friendships` |
 | Block và huỷ kết bạn, người bị block không gửi lại lời mời được | `blocks` (Java kiểm tra trước khi tạo `friend_requests`) |
 | DS lời mời kết bạn, lọc tên, đồng ý / từ chối | `friend_requests` |
-| DS bạn đang online: chat, tạo group | `friendships` + `users.is_online` |
+| DS bạn đang online: chat, tạo group | `friendships` + `users` (`is_online` + `last_seen`) |
 | Tìm người theo tên đăng nhập / tên, không thấy người đã block mình | `users` trừ `blocks.blocker_id` |
 | Báo cáo spam khi người đó chat với mình | `spam_reports` (có `conversation_id`) |
 | Chat thời gian thực khi online | Java (socket); tin vẫn lưu vào `messages` |
