@@ -20,6 +20,9 @@ public class UserMainFrame extends JFrame {
 
     private final AuthService authService = new AuthService();
 
+    /** Gửi tín hiệu "còn sống" định kỳ để bạn bè thấy mình online; dừng khi đăng xuất. */
+    private final Timer heartbeatTimer = new Timer(AuthService.HEARTBEAT_SECONDS * 1000, e -> sendHeartbeat());
+
     public UserMainFrame() {
         super("Chat System");
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);   // tự xử lý ở dưới: ghi đăng xuất rồi mới thoát
@@ -47,6 +50,8 @@ public class UserMainFrame extends JFrame {
         add(menu, BorderLayout.WEST);
         add(menu.getContentPanel(), BorderLayout.CENTER);
 
+        heartbeatTimer.start();
+
         // Đóng cửa sổ = đăng xuất: ghi lại để bạn bè thấy mình offline
         addWindowListener(new WindowAdapter() {
             @Override
@@ -70,8 +75,18 @@ public class UserMainFrame extends JFrame {
         });
     }
 
+    private void sendHeartbeat() {
+        if (!Session.isLoggedIn()) {
+            return;
+        }
+        int userId = Session.currentUserId();
+        // Lỗi CSDL thoáng qua thì bỏ qua, lần sau gửi lại; không hiện hộp thoại mỗi 30 giây.
+        Async.run(() -> authService.heartbeat(userId), ok -> { }, error -> { });
+    }
+
     /** Ghi đăng xuất vào CSDL (trong luồng nền), xong thì chạy {@code then}. Lỗi mạng/CSDL không chặn việc thoát. */
     private void endSession(Runnable then) {
+        heartbeatTimer.stop();
         if (!Session.isLoggedIn()) {
             then.run();
             return;

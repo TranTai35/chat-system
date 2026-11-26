@@ -23,10 +23,25 @@ import java.util.Optional;
  */
 public class UserDao {
 
-    /** Danh sách cột dùng chung cho mọi câu SELECT, để {@link #map} luôn khớp. */
+    /** Quá bao nhiêu phút không có tín hiệu "còn sống" thì coi là offline. */
+    public static final int ONLINE_TIMEOUT_MINUTES = 3;
+
+    /**
+     * Điều kiện SQL "đang online" cho bảng users có bí danh {@code alias}, dùng chung cho mọi truy vấn.
+     * Ví dụ DAO bạn bè: {@code "SELECT u.id, " + UserDao.onlineSql("u") + " AS online FROM friendships f JOIN users u ..."}
+     * hoặc lọc: {@code "... WHERE " + UserDao.onlineSql("u")}. Không tự viết lại điều kiện ở chỗ khác.
+     */
+    public static String onlineSql(String alias) {
+        String p = alias == null || alias.isEmpty() ? "" : alias + ".";
+        return "(" + p + "is_online = 1 AND " + p + "last_seen >= NOW(3) - INTERVAL "
+                + ONLINE_TIMEOUT_MINUTES + " MINUTE)";
+    }
+
+    /** Danh sách cột dùng chung cho mọi câu SELECT, để {@link #map} luôn khớp. Cột online đã tính theo last_seen. */
     private static final String COLUMNS =
             "id, username, password_hash, full_name, address, dob, gender, email, role, "
-                    + "is_locked, is_online, public_key, private_key_enc, created_at";
+                    + "is_locked, " + onlineSql(null) + " AS online_now, last_seen, "
+                    + "public_key, private_key_enc, created_at";
 
     public Optional<User> findById(int id) {
         return Db.queryOne("SELECT " + COLUMNS + " FROM users WHERE id = ?",
@@ -55,6 +70,12 @@ public class UserDao {
                     ps.setString(1, email);
                     ps.setInt(2, userId);
                 }, rs -> 1).isPresent();
+    }
+
+    /** Người này có đang online không (is_online = 1 và có tín hiệu trong {@value #ONLINE_TIMEOUT_MINUTES} phút). */
+    public boolean isOnline(int userId) {
+        return Db.queryOne("SELECT 1 FROM users WHERE id = ? AND " + onlineSql(null),
+                ps -> ps.setInt(1, userId), rs -> 1).isPresent();
     }
 
     /** Tất cả tài khoản, mới đăng ký xếp trước. */
@@ -126,7 +147,9 @@ public class UserDao {
         u.setEmail(rs.getString("email"));
         u.setRole(User.Role.valueOf(rs.getString("role")));
         u.setLocked(rs.getBoolean("is_locked"));
-        u.setOnline(rs.getBoolean("is_online"));
+        u.setOnline(rs.getBoolean("online_now"));
+        Timestamp lastSeen = rs.getTimestamp("last_seen");
+        u.setLastSeen(lastSeen == null ? null : lastSeen.toLocalDateTime());
         u.setPublicKey(rs.getString("public_key"));
         u.setPrivateKeyEnc(rs.getString("private_key_enc"));
         Timestamp created = rs.getTimestamp("created_at");

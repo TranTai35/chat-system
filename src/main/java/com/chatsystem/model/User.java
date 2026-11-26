@@ -21,6 +21,7 @@ public class User {
     private Role role = Role.USER;
     private boolean locked;
     private boolean online;
+    private LocalDateTime lastSeen;
     private String publicKey;
     private String privateKeyEnc;
     private LocalDateTime createdAt;
@@ -55,9 +56,16 @@ public class User {
     public boolean isLocked() { return locked; }
     public void setLocked(boolean locked) { this.locked = locked; }
 
-    /** Giá trị cột {@code is_online}. Muốn biết người này đang online hay không thì dùng hàm kiểm tra ở UserDao (đợt 1). */
+    /**
+     * Đang online hay không, đã tính theo tín hiệu "còn sống" (is_online = 1 và last_seen trong 3 phút)
+     * khi đọc từ {@code UserDao}. Đây là trạng thái lúc truy vấn; cần giá trị mới thì đọc lại.
+     */
     public boolean isOnline() { return online; }
     public void setOnline(boolean online) { this.online = online; }
+
+    /** Lần cuối ứng dụng của người này gửi tín hiệu "còn sống" ({@code users.last_seen}). */
+    public LocalDateTime getLastSeen() { return lastSeen; }
+    public void setLastSeen(LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
 
     public String getPublicKey() { return publicKey; }
     public void setPublicKey(String publicKey) { this.publicKey = publicKey; }
