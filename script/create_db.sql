@@ -38,7 +38,10 @@ CREATE TABLE users (
     email         VARCHAR(100) NOT NULL,                 -- dùng cho Quên mật khẩu
     role          ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     is_locked     BOOLEAN      NOT NULL DEFAULT FALSE,   -- admin khoá tài khoản
-    is_online     BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_online     BOOLEAN      NOT NULL DEFAULT FALSE,   -- đặt TRUE khi đăng nhập, FALSE khi đăng xuất / đóng ứng dụng
+    last_seen     DATETIME(3)  NULL,                     -- tín hiệu "còn sống": cập nhật khi đăng nhập và mỗi 30 giây.
+                                                         -- Online khi is_online = 1 AND last_seen >= NOW() - INTERVAL 3 MINUTE,
+                                                         -- nên ứng dụng bị tắt ngang thì sau 3 phút tự thành offline
     public_key    TEXT         NULL,                     -- khoá công khai (Base64), dùng cho nhóm mã hoá
     private_key_enc TEXT       NULL,                     -- khoá bí mật đã mã hoá bằng mật khẩu (salt:iv:bản mã, Base64),
                                                          -- để đăng nhập máy khác vẫn đọc được nhóm mã hoá (giống Facebook)
